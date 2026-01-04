@@ -7,7 +7,6 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private float speed = 5f;
     private Vector2 _serverVelocity;
 
-    // Optional: track on server for cheats/lag handling
     private Vector2 _position;
 
     private void Update()
