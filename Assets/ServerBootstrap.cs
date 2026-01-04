@@ -12,7 +12,7 @@ public class ServerBootstrap : MonoBehaviour
         {
             Debug.Log("Application started in batch mode. Starting headless server.");
 
-            var transport = FindObjectOfType<UnityTransport>();
+            var transport = FindFirstObjectByType<UnityTransport>();
 
             if (transport == null)
             {
