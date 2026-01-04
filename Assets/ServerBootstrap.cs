@@ -6,38 +6,41 @@ public class ServerBootstrap : MonoBehaviour
 {
     void Start()
     {
-        // Start server if either we're a Server Build or headless batch mode.
-        bool isHeadless = Application.isBatchMode;
+        bool isBatchMode = Application.isBatchMode;
 
-#if UNITY_SERVER
-        bool isServerBuild = true;
-#else
-        bool isServerBuild = false;
-#endif
-
-        if (isHeadless || isServerBuild)
+        if (isBatchMode)
         {
-            var transport = FindObjectOfType<UnityTransport>();
-            if (transport != null)
-            {
-                ushort port = 7777;
-                var args = System.Environment.GetCommandLineArgs();
-                for (int i = 0; i < args.Length - 1; i++)
-                    if (args[i] == "-port" && ushort.TryParse(args[i + 1], out var p))
-                        port = p;
+            Debug.Log("Application started in batch mode. Starting headless server.");
 
-                transport.SetConnectionData("0.0.0.0", port);
-                Debug.Log($"[BOOT] Transport bound to 0.0.0.0:{port}");
+            var transport = FindObjectOfType<UnityTransport>();
+
+            if (transport == null)
+            {
+                Debug.LogError("No UnityTransport found in the scene. Cannot start headless server.");
+                return;
             }
-            bool ok = NetworkManager.Singleton.StartServer();
-            Debug.Log(ok ? "[NETCODE] Server started" : "[NETCODE] Server start FAILED");
+
+            ushort port = 7777;
+            var ip = "0.0.0.0";
+            transport.SetConnectionData(ip, port);
+            Debug.Log($"Transport bound to {ip}:{port}");
+
+            bool serverStartedSuccessfully = NetworkManager.Singleton.StartServer();
+
+            if (serverStartedSuccessfully)
+                Debug.Log("Headless server started successfully.");
+            else
+                Debug.LogError("Headless server failed to start.");
         }
         else
         {
-            // Debug.Log("[BOOT] Non-headless run; start client/host via UI.");
-            Debug.Log("Non-headless run; Starting as client");
-            bool ok = NetworkManager.Singleton.StartClient();
-            Debug.Log(ok ? "[NETCODE] Client started" : "[NETCODE] Client start FAILED");
+            Debug.Log("Application not started in batch mode. Starting as client.");
+            bool clientStartedSuccessfully = NetworkManager.Singleton.StartClient();
+
+            if (clientStartedSuccessfully)
+                Debug.Log("Client started successfully.");
+            else
+                Debug.LogError("Client failed to start.");
         }
     }
 }
