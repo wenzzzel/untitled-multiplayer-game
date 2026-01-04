@@ -12,14 +12,17 @@ public class Hook : NetworkBehaviour
     [SerializeField] private float stretchSpeed = 5f;
     
     private Vector3 originalScale;
-    private Vector3 targetScale;
+    private NetworkVariable<Vector3> networkTargetScale = new NetworkVariable<Vector3>(
+        default,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
     private bool isStretching = false;
     private InputAction fireAction;
 
     void Awake()
     {
         originalScale = transform.localScale;
-        targetScale = originalScale;
         
         if (inputActions == null)
         {
@@ -28,6 +31,26 @@ public class Hook : NetworkBehaviour
         }
 
         fireAction = inputActions.FindActionMap("Player").FindAction("Attack");
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        
+        // Subscribe to network variable changes
+        networkTargetScale.OnValueChanged += OnTargetScaleChanged;
+        
+        // Initialize the network variable on the server
+        if (IsServer)
+        {
+            networkTargetScale.Value = originalScale;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        networkTargetScale.OnValueChanged -= OnTargetScaleChanged;
     }
 
     void OnEnable()
@@ -56,34 +79,66 @@ public class Hook : NetworkBehaviour
 
     void Update()
     {
-        if (!(IsOwner && IsClient))
-            return;
-
-        // Smoothly interpolate to the target scale
+        // Smoothly interpolate to the target scale (happens on all clients)
         if (isStretching)
         {
-            transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * stretchSpeed);
+            transform.localScale = Vector3.Lerp(transform.localScale, networkTargetScale.Value, Time.deltaTime * stretchSpeed);
             
             // Check if we're close enough to the target scale
-            if (Vector3.Distance(transform.localScale, targetScale) < 0.01f)
+            if (Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f)
             {
-                transform.localScale = targetScale;
+                transform.localScale = networkTargetScale.Value;
                 isStretching = false;
+                
+                // Only the owner resets the hook
+                if (IsOwner && transform.localScale != originalScale)
+                {
+                    ResetHookServerRpc();
+                }
             }
         }
     }
 
     private void OnFire(InputAction.CallbackContext context)
     {
-        // Stretch the hook (10x length in Y axis, keep X and Z the same)
-        targetScale = new Vector3(originalScale.x, originalScale.y * stretchMultiplier, originalScale.z);
+        // Only the owner can fire the hook
+        if (!IsOwner) return;
+        
+        // Tell the server to fire the hook
+        FireHookServerRpc();
+    }
+
+    [ServerRpc]
+    private void FireHookServerRpc()
+    {
+        // Server updates the network variable, which syncs to all clients
+        Vector3 stretchedScale = new Vector3(originalScale.x, originalScale.y * stretchMultiplier, originalScale.z);
+        networkTargetScale.Value = stretchedScale;
+    }
+
+    [ServerRpc]
+    private void ResetHookServerRpc()
+    {
+        // Server resets the hook
+        networkTargetScale.Value = originalScale;
+    }
+
+    private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
+    {
+        // When the network variable changes, start stretching/resetting
         isStretching = true;
     }
 
     // Public method to reset the hook to its original size
     public void ResetHook()
     {
-        targetScale = originalScale;
-        isStretching = true;
+        if (IsServer)
+        {
+            networkTargetScale.Value = originalScale;
+        }
+        else if (IsOwner)
+        {
+            ResetHookServerRpc();
+        }
     }
 }
