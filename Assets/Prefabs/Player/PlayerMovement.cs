@@ -23,14 +23,6 @@ public class PlayerMovement : NetworkBehaviour
         moveAction = inputActions.FindActionMap("Player").FindAction("Move");
     }
 
-    public override void OnNetworkSpawn()
-    {
-        if (!IsServer)
-            return;
-        
-        transform.position = GetRandomPosition();
-    }
-
     private void Update()
     {
         if (!(IsOwner && IsClient))
@@ -50,7 +42,4 @@ public class PlayerMovement : NetworkBehaviour
 
         transform.position = position;
     }
-
-    private static Vector2 GetRandomPosition() => new Vector2(Random.Range(-6f, 6f), Random.Range(-3f, 3f));
-
 }
