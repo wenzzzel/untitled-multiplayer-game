@@ -35,16 +35,16 @@ public class Hook : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        base.OnNetworkSpawn();
+        // base.OnNetworkSpawn();
         
         // Subscribe to network variable changes
         networkTargetScale.OnValueChanged += OnTargetScaleChanged;
         
         // Initialize the network variable on the server
-        if (IsServer)
-        {
-            networkTargetScale.Value = originalScale;
-        }
+        if (!IsServer)
+            return;
+
+        networkTargetScale.Value = originalScale;
     }
 
     public override void OnNetworkDespawn()
