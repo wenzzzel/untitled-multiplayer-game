@@ -17,8 +17,10 @@ public class Hook : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
-    private bool isStretching = false;
+    private bool hookShouldExtend = false; //TODO: The name on this bool is incorrect. It's more like isExtendingOrRetracting. Also, it's always being 'false' except when hook is extending, then it's 'false' and 'true' every other frame
     private InputAction fireAction;
+
+#region Lifecycle calls
 
     void Awake()
     {
@@ -34,84 +36,99 @@ public class Hook : NetworkBehaviour
     }
 
     public override void OnNetworkSpawn()
-    {
-        // base.OnNetworkSpawn();
-        
-        // Subscribe to network variable changes
-        networkTargetScale.OnValueChanged += OnTargetScaleChanged;
-        
-        // Initialize the network variable on the server
+    {   
+        base.OnNetworkSpawn();
+        networkTargetScale.OnValueChanged += OnTargetScaleChanged; // Subscribe to network variable changes
+
         if (!IsServer)
             return;
 
-        networkTargetScale.Value = originalScale;
+        networkTargetScale.Value = originalScale; // Initialize the network variable on the server
     }
 
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-        networkTargetScale.OnValueChanged -= OnTargetScaleChanged;
+        networkTargetScale.OnValueChanged -= OnTargetScaleChanged; // Unsubscribe from network variable changes
     }
 
-    void OnEnable()
-    {
-        if (fireAction == null)
-        {
-            Debug.LogError("Fire action not found in Hook script, so cannot enable.");
-            return;
-        }
+    void OnEnable() => SetFireActionSubscriptionState(true);
 
-        fireAction.performed += OnFire;
-        fireAction.Enable();
-    }
-
-    void OnDisable()
-    {
-        if (fireAction == null)
-        {
-            Debug.LogError("Fire action not found in Hook script, so cannot disable.");
-            return;
-        }
-
-        fireAction.performed -= OnFire;
-        fireAction.Disable();
-    }
+    void OnDisable() => SetFireActionSubscriptionState(false);
 
     void Update()
     {
-        // Smoothly interpolate to the target scale (happens on all clients)
-        if (isStretching)
+        Debug.Log(hookShouldExtend);
+
+        if (!hookShouldExtend)
+            return;
+        
+        ExtendHookLocally();
+        
+        if (HookNotFullyExtended())
+            return;
+        
+        ResetHook();
+    }
+
+#endregion
+#region Custom methods
+
+    private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
+    {
+        hookShouldExtend = true;
+    }
+
+    private void ExtendHookLocally()
+    {
+        transform.localScale = Vector3.Lerp(transform.localScale, networkTargetScale.Value, Time.deltaTime * stretchSpeed);
+    }
+
+    private void ExtendHook(InputAction.CallbackContext context)
+    {
+        if (!IsOwner) 
+            return;
+        
+        ExtendHookServerRpc();
+    }
+
+    private void ResetHook()
+    {
+        transform.localScale = networkTargetScale.Value;
+        hookShouldExtend = false;
+        
+        // Only the owner resets the hook
+        if (IsOwner && transform.localScale != originalScale)
         {
-            transform.localScale = Vector3.Lerp(transform.localScale, networkTargetScale.Value, Time.deltaTime * stretchSpeed);
-            
-            // Check if we're close enough to the target scale
-            if (Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f)
-            {
-                transform.localScale = networkTargetScale.Value;
-                isStretching = false;
-                
-                // Only the owner resets the hook
-                if (IsOwner && transform.localScale != originalScale)
-                {
-                    ResetHookServerRpc();
-                }
-            }
+            ResetHookServerRpc();
         }
     }
 
-    private void OnFire(InputAction.CallbackContext context)
+    private bool HookNotFullyExtended() => !(Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f);
+
+#endregion
+#region Button click subscription
+
+    private void SetFireActionSubscriptionState(bool on)
     {
-        // Only the owner can fire the hook
-        if (!IsOwner) return;
-        
-        // Tell the server to fire the hook
-        FireHookServerRpc();
+        if (on)
+        {
+            fireAction.performed += ExtendHook;
+            fireAction.Enable();
+        }
+        else
+        {
+            fireAction.performed -= ExtendHook;
+            fireAction.Disable();
+        }
     }
 
+#endregion
+#region Server RPCs
+
     [ServerRpc]
-    private void FireHookServerRpc()
+    private void ExtendHookServerRpc()
     {
-        // Server updates the network variable, which syncs to all clients
         Vector3 stretchedScale = new Vector3(originalScale.x, originalScale.y * stretchMultiplier, originalScale.z);
         networkTargetScale.Value = stretchedScale;
     }
@@ -119,26 +136,9 @@ public class Hook : NetworkBehaviour
     [ServerRpc]
     private void ResetHookServerRpc()
     {
-        // Server resets the hook
         networkTargetScale.Value = originalScale;
     }
 
-    private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
-    {
-        // When the network variable changes, start stretching/resetting
-        isStretching = true;
-    }
+#endregion
 
-    // Public method to reset the hook to its original size
-    public void ResetHook()
-    {
-        if (IsServer)
-        {
-            networkTargetScale.Value = originalScale;
-        }
-        else if (IsOwner)
-        {
-            ResetHookServerRpc();
-        }
-    }
 }
