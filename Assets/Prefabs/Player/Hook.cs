@@ -17,7 +17,7 @@ public class Hook : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
-    private bool hookShouldExtend = false; //TODO: The name on this bool is incorrect. It's more like isExtendingOrRetracting. Also, it's always being 'false' except when hook is extending, then it's 'false' and 'true' every other frame
+    private bool hookShouldExtend = false;
     private InputAction fireAction;
 
 #region Lifecycle calls
@@ -52,75 +52,65 @@ public class Hook : NetworkBehaviour
         networkTargetScale.OnValueChanged -= OnTargetScaleChanged; // Unsubscribe from network variable changes
     }
 
-    void OnEnable() => SetFireActionSubscriptionState(true);
+    void OnEnable()
+    {
+        fireAction.performed += ExtendHookOnServer;
+        fireAction.Enable();
+    }
 
-    void OnDisable() => SetFireActionSubscriptionState(false);
+    void OnDisable()
+    {
+        fireAction.performed -= ExtendHookOnServer;
+        fireAction.Disable();
+    }
 
     void Update()
-    {
-        Debug.Log(hookShouldExtend);
+    {   
+        if (IsHookFullyExtended())
+        {
+            ResetHookOnServer();
+            hookShouldExtend = false;
+            return;
+        }
 
-        if (!hookShouldExtend)
+        if (IsHookFullyRetracted())
+        {
+            hookShouldExtend = false;
             return;
+        }
         
-        ExtendHookLocally();
-        
-        if (HookNotFullyExtended())
-            return;
-        
-        ResetHook();
+        // Hook wasn't fully extended or retracted yet, continue lerping
+        transform.localScale = Vector3.Lerp(transform.localScale, networkTargetScale.Value, Time.deltaTime * stretchSpeed);
     }
 
 #endregion
 #region Custom methods
+
+    private bool IsHookFullyExtended() => IsHookInSyncWithServer() && hookShouldExtend;
+
+    private bool IsHookFullyRetracted() => IsHookInSyncWithServer() && !hookShouldExtend;
 
     private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
     {
         hookShouldExtend = true;
     }
 
-    private void ExtendHookLocally()
+    private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
+
+    private void ResetHookOnServer()
     {
-        transform.localScale = Vector3.Lerp(transform.localScale, networkTargetScale.Value, Time.deltaTime * stretchSpeed);
+        if (!IsOwner)
+            return;
+
+        ResetHookServerRpc();
     }
 
-    private void ExtendHook(InputAction.CallbackContext context)
+    private void ExtendHookOnServer(InputAction.CallbackContext context)
     {
         if (!IsOwner) 
             return;
         
         ExtendHookServerRpc();
-    }
-
-    private void ResetHook()
-    {
-        transform.localScale = networkTargetScale.Value;
-        hookShouldExtend = false;
-        
-        // Only the owner resets the hook
-        if (IsOwner && transform.localScale != originalScale)
-        {
-            ResetHookServerRpc();
-        }
-    }
-
-    private bool HookNotFullyExtended() => !(Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f);
-
-#endregion
-#region Button click subscription
-
-    private void SetFireActionSubscriptionState(bool on)
-    {
-        if (on)
-        {
-            fireAction.performed += ExtendHook;
-            fireAction.Enable();
-        }
-        else
-        {
-            fireAction.performed -= ExtendHook;
-            fireAction.Disable();
-        }
     }
 
 #endregion
