@@ -10,6 +10,7 @@ public class Hook : NetworkBehaviour
     [Header("Hook Settings")]
     [SerializeField] private float stretchMultiplier = 10f;
     [SerializeField] private float stretchSpeed = 5f;
+    [SerializeField] private Tip tipScript; //TODO: Make required
     
     private Vector3 originalScale;
     private NetworkVariable<Vector3> networkTargetScale = new NetworkVariable<Vector3>(
@@ -93,6 +94,7 @@ public class Hook : NetworkBehaviour
     private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
     {
         hookShouldExtend = true;
+        tipScript.MoveTip(); //TODO: Maybe not the correct place to control the tip, but now we now we can access it at least
     }
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
