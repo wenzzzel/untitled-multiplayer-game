@@ -81,7 +81,10 @@ public class Hook : NetworkBehaviour
         }
         
         // Hook wasn't fully extended or retracted yet, continue lerping
-        transform.localScale = Vector3.Lerp(transform.localScale, networkTargetScale.Value, Time.deltaTime * stretchSpeed);
+        transform.localScale = Vector3.Lerp(
+            transform.localScale, 
+            networkTargetScale.Value, 
+            Time.deltaTime * stretchSpeed);
     }
 
 #endregion
@@ -94,7 +97,7 @@ public class Hook : NetworkBehaviour
     private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
     {
         hookShouldExtend = true;
-        tipScript.MoveTip(); //TODO: Maybe not the correct place to control the tip, but now we now we can access it at least
+        tipScript.MoveTip(newValue); //TODO: Maybe not the correct place to control the tip, but now we now we can access it at least
     }
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
