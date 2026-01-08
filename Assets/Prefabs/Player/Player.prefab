@@ -108,7 +108,8 @@ MonoBehaviour:
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   stretchMultiplier: 10
   stretchSpeed: 5
-  tipScript: {fileID: 8893374096311310700}
+  tipMovementScript: {fileID: 2109703435349626518}
+  tipGrapleScript: {fileID: 8893374096311310700}
 --- !u!1 &2203260561462229914
 GameObject:
   m_ObjectHideFlags: 0
@@ -120,6 +121,7 @@ GameObject:
   - component: {fileID: 1833165147689430591}
   - component: {fileID: 3306937803819725747}
   - component: {fileID: 8893374096311310700}
+  - component: {fileID: 2109703435349626518}
   - component: {fileID: 4197635188621594823}
   - component: {fileID: 3341124801589256557}
   m_Layer: 0
@@ -215,6 +217,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50e64e4b1d3f90d738918d3e9270ef9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+--- !u!114 &2109703435349626518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2203260561462229914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91deb2a14ac25774b9ef617f6f61e89d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TipMovement
 --- !u!58 &4197635188621594823
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -331,7 +345,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 553305891
+  GlobalObjectIdHash: 2846850849
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1

@@ -10,7 +10,8 @@ public class Hook : NetworkBehaviour
     [Header("Hook Settings")]
     [SerializeField] private float stretchMultiplier = 10f;
     [SerializeField] private float stretchSpeed = 5f;
-    [SerializeField] private Tip tipScript;
+    [SerializeField] private TipMovement tipMovementScript;
+    [SerializeField] private TipGraple tipGrapleScript;
     
     private Vector3 originalScale;
     private NetworkVariable<Vector3> networkTargetScale = new NetworkVariable<Vector3>(
@@ -27,8 +28,8 @@ public class Hook : NetworkBehaviour
     {
         originalScale = transform.localScale;
 
-        if (tipScript == null)
-            Debug.LogError("Tip script reference not assigned in Hook script.");
+        if (tipMovementScript == null)
+            Debug.LogError("TipMovement script reference not assigned in Hook script.");
         
         if (inputActions == null)
         {
@@ -80,6 +81,7 @@ public class Hook : NetworkBehaviour
         if (IsHookFullyRetracted())
         {
             hookShouldExtend = false;
+            tipGrapleScript.ReleaseGrappledPlayer(); // This releases too early. Perhaps the method IsHookFullyRetracted isn't checking exactly what it says
             return;
         }
         
@@ -100,7 +102,7 @@ public class Hook : NetworkBehaviour
     private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
     {
         hookShouldExtend = true;
-        tipScript.MoveTip(newValue); //TODO: Maybe not the correct place to control the tip, but now we now we can access it at least
+        tipMovementScript.MoveTip(newValue); //TODO: Maybe not the correct place to control the tip, but now we now we can access it at least
     }
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
