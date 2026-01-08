@@ -10,7 +10,7 @@ public class Hook : NetworkBehaviour
     [Header("Hook Settings")]
     [SerializeField] private float stretchMultiplier = 10f;
     [SerializeField] private float stretchSpeed = 5f;
-    [SerializeField] private Tip tipScript; //TODO: Make required
+    [SerializeField] private Tip tipScript;
     
     private Vector3 originalScale;
     private NetworkVariable<Vector3> networkTargetScale = new NetworkVariable<Vector3>(
@@ -26,6 +26,9 @@ public class Hook : NetworkBehaviour
     void Awake()
     {
         originalScale = transform.localScale;
+
+        if (tipScript == null)
+            Debug.LogError("Tip script reference not assigned in Hook script.");
         
         if (inputActions == null)
         {
