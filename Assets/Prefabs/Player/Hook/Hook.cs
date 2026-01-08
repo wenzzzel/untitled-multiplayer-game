@@ -80,8 +80,7 @@ public class Hook : NetworkBehaviour
 
         if (IsHookFullyRetracted())
         {
-            hookShouldExtend = false;
-            tipGrapleScript.ReleaseGrappledPlayer(); // This releases too early. Perhaps the method IsHookFullyRetracted isn't checking exactly what it says
+            tipGrapleScript.ReleaseGrappledPlayer();
             return;
         }
         
@@ -101,8 +100,12 @@ public class Hook : NetworkBehaviour
 
     private void OnTargetScaleChanged(Vector3 previousValue, Vector3 newValue)
     {
-        hookShouldExtend = true;
-        tipMovementScript.MoveTip(newValue); //TODO: Maybe not the correct place to control the tip, but now we now we can access it at least
+        if (newValue == originalScale)
+            hookShouldExtend = false;
+        else
+            hookShouldExtend = true;
+        
+        tipMovementScript.MoveTip(newValue);
     }
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
