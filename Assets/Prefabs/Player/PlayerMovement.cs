@@ -2,6 +2,8 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(CircleCollider2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : NetworkBehaviour
 {
     [Header("Input")]
@@ -33,15 +35,12 @@ public class PlayerMovement : NetworkBehaviour
         if (input.sqrMagnitude > 0f) // Only send changes to server if something actually changed
             MovePlayerServerRpc(input, Time.deltaTime);
         
-        // Rotate player to face mouse
         RotateTowardsMouse();
     }
 
     private void RotateTowardsMouse()
     {
-        // Get mouse position in world space
-        var mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        mouseWorldPosition.z = 0f; // Keep on the same Z plane as player
+        var mouseWorldPosition = GetMousePositionInWorld();
         
         // Calculate direction from player to mouse
         var direction = (mouseWorldPosition - transform.position).normalized;
@@ -52,8 +51,15 @@ public class PlayerMovement : NetworkBehaviour
         // Apply rotation (subtract 90 if your sprite faces up by default)
         var targetRotation = Quaternion.Euler(0f, 0f, angle - 90f);
         
-        // Send rotation to server
         RotatePlayerServerRpc(targetRotation);
+    }
+
+    private Vector3 GetMousePositionInWorld()
+    {
+        var mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mouseWorldPosition.z = 0f; // Keep on the same Z plane as player
+
+        return mouseWorldPosition;
     }
 
     [ServerRpc]
