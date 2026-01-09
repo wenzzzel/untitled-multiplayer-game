@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 public class Hook : NetworkBehaviour
 {
     [Header("Input")]
-    [SerializeField] private InputActionAsset inputActions;
+    [SerializeField] private InputActionAsset inputActions; //TODO: Maybe hook is too independent. Perhaps there should be a script on the Player called PlayerHookAbility which has a refernece to this and reads input instead.
     
     [Header("Hook Settings")]
     [SerializeField] private float stretchMultiplier = 10f;
@@ -34,10 +34,7 @@ public class Hook : NetworkBehaviour
             Debug.LogError("TipMovement script reference not assigned in Hook script.");
         
         if (inputActions == null)
-        {
             Debug.LogError("InputActionAsset not assigned in Hook script.");
-            return;
-        }
 
         fireAction = inputActions.FindActionMap("Player").FindAction("Attack");
     }
