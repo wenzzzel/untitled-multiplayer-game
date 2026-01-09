@@ -10,6 +10,8 @@ public class Hook : NetworkBehaviour
     [Header("Hook Settings")]
     [SerializeField] private float stretchMultiplier = 10f;
     [SerializeField] private float stretchSpeed = 5f;
+    
+    [Header("References to other scripts")]
     [SerializeField] private TipMovement tipMovementScript;
     [SerializeField] private TipGraple tipGrapleScript;
     
@@ -110,20 +112,20 @@ public class Hook : NetworkBehaviour
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
 
-    private void ResetHookOnServer()
-    {
-        if (!IsOwner)
-            return;
-
-        ResetHookServerRpc();
-    }
-
     private void ExtendHookOnServer(InputAction.CallbackContext context)
     {
         if (!IsOwner) 
             return;
         
         ExtendHookServerRpc();
+    }
+
+    public void ResetHookOnServer()
+    {
+        if (!IsOwner)
+            return;
+
+        ResetHookServerRpc();
     }
 
 #endregion
