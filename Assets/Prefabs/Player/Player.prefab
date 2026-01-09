@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a9ea00ee50cd1a919b2b75e51a8169f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
+  swingDuration: 0.3
 --- !u!212 &117436564643011901
 SpriteRenderer:
   serializedVersion: 2
