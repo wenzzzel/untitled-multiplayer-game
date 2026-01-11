@@ -8,7 +8,7 @@ public class PlayerHealth : MonoBehaviour
     [Header("References to other scripts")]
     [SerializeField] private HealthBar healthBarScript;
 
-    public int currentHealth;
+    [SerializeField] public int currentHealth;
 
 #region Lifecycle calls
 

@@ -155,6 +155,7 @@ public class MeleeWeapon : NetworkBehaviour
             Debug.Log($"[SERVER] Melee weapon hit: {hitCollider.gameObject.name} at position {hitCollider.transform.position}");
 
             // Apply damage to the hit object here when you implement a Health system
+            hitCollider.GetComponent<PlayerHealth>()?.TakeDamage(5);
         }
     }
 

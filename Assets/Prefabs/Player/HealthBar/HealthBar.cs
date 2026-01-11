@@ -25,7 +25,7 @@ public class HealthBar : MonoBehaviour
 #endregion
 #region Public methods
 
-    public void UpdateHealthBar(int damageAmount)
+    public void UpdateHealthBar(int damageAmount) //TODO: This one needs to update on the server and all clients
     {
         var newSize = Mathf.Max(0f, fullHealthSize - damageAmount * stepHealthSize);
         transform.localScale = new Vector3(newSize, transform.localScale.y, transform.localScale.z);
