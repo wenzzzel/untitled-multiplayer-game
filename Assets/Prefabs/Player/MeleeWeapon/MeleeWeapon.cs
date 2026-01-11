@@ -1,12 +1,17 @@
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(CircleCollider2D))]
-public class MeleeWeapon : MonoBehaviour
+public class MeleeWeapon : NetworkBehaviour
 {
     [SerializeField] private float swingDuration = 0.3f; // Duration of the swing in seconds
     private bool isSwinging = false;
+
+
+
+#region Lifecycle calls
 
     void Start()
     {
@@ -18,13 +23,62 @@ public class MeleeWeapon : MonoBehaviour
         
     }
 
+#endregion
+#region Public methods
+
+    /// <summary>
+    /// Initiates a melee weapon swing. Called by the owner client.
+    /// Executes locally for instant feedback and syncs to other clients via RPC.
+    /// </summary>
     public void Swing()
     {
-        if (!isSwinging)
+        if (isSwinging)
+            return;
+        
+        // Execute swing locally for instant feedback
+        StartCoroutine(SwingCoroutine());
+        
+        // Notify server and other clients
+        if (IsOwner)
+        {
+            SwingServerRpc();
+        }
+    }
+
+#endregion
+#region Network methods
+
+    /// <summary>
+    /// Server RPC called by the owner client when they swing.
+    /// Server processes hit detection and notifies all other clients.
+    /// </summary>
+    [ServerRpc]
+    private void SwingServerRpc()
+    {
+        // Server-side hit detection and damage logic would go here
+        // For now, we just broadcast the visual to other clients
+        
+        // Notify all clients except the one who initiated the swing
+        SwingClientRpc();
+    }
+
+    /// <summary>
+    /// Client RPC to show the swing animation on all non-owner clients.
+    /// The owner already executed the swing locally for instant feedback.
+    /// </summary>
+    [ClientRpc]
+    private void SwingClientRpc()
+    {
+        // Only execute on clients that are NOT the owner
+        // (owner already executed swing locally)
+        if (!IsOwner && !isSwinging)
         {
             StartCoroutine(SwingCoroutine());
         }
     }
+
+#endregion
+#region Private methods
 
     private IEnumerator SwingCoroutine()
     {
@@ -52,4 +106,7 @@ public class MeleeWeapon : MonoBehaviour
         transform.localPosition = originalPosition;
         isSwinging = false;
     }
+
+#endregion
+
 }

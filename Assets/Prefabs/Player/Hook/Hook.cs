@@ -1,12 +1,8 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Hook : NetworkBehaviour
-{
-    [Header("Input")]
-    [SerializeField] private InputActionAsset inputActions; //TODO: Maybe hook is too independent. Perhaps there should be a script on the Player called PlayerHookAbility which has a refernece to this and reads input instead.
-    
+{  
     [Header("Hook Settings")]
     [SerializeField] private float stretchMultiplier = 10f;
     [SerializeField] private float stretchSpeed = 5f;
@@ -22,7 +18,6 @@ public class Hook : NetworkBehaviour
         NetworkVariableWritePermission.Server
     );
     private bool hookShouldExtend = false;
-    private InputAction fireAction;
 
 #region Lifecycle calls
 
@@ -32,11 +27,6 @@ public class Hook : NetworkBehaviour
 
         if (tipMovementScript == null)
             Debug.LogError("TipMovement script reference not assigned in Hook script.");
-        
-        if (inputActions == null)
-            Debug.LogError("InputActionAsset not assigned in Hook script.");
-
-        fireAction = inputActions.FindActionMap("Player").FindAction("Attack");
     }
 
     public override void OnNetworkSpawn()
@@ -54,18 +44,6 @@ public class Hook : NetworkBehaviour
     {
         base.OnNetworkDespawn();
         networkTargetScale.OnValueChanged -= OnTargetScaleChanged; // Unsubscribe from network variable changes
-    }
-
-    void OnEnable()
-    {
-        fireAction.performed += ExtendHookOnServer;
-        fireAction.Enable();
-    }
-
-    void OnDisable()
-    {
-        fireAction.performed -= ExtendHookOnServer;
-        fireAction.Disable();
     }
 
     void Update()
@@ -91,7 +69,7 @@ public class Hook : NetworkBehaviour
     }
 
 #endregion
-#region Custom methods
+#region Private methods
 
     private bool IsHookFullyExtended() => IsHookInSyncWithServer() && hookShouldExtend;
 
@@ -109,7 +87,10 @@ public class Hook : NetworkBehaviour
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
 
-    private void ExtendHookOnServer(InputAction.CallbackContext context)
+#endregion
+#region Public methods
+
+    public void ExtendHookOnServer()
     {
         if (!IsOwner) 
             return;

@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class PlayerMeleeAttack : MonoBehaviour
+public class PlayerMeleeAttack : NetworkBehaviour
 {
     [Header("Input")]
     [SerializeField] private InputActionAsset inputActions;
@@ -33,16 +34,14 @@ public class PlayerMeleeAttack : MonoBehaviour
         attackAction.Disable();
     }
 
-    void Update()
-    {
-        
-    }
-
 #endregion
 #region Private methods
 
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
+        if (!IsOwner)
+            return;
+            
         meleeWeaponScript.Swing();
     }
 
