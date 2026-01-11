@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1815052724980506264}
   - component: {fileID: 117436564643011901}
   - component: {fileID: 2555471028833560357}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MeleeWeapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a9ea00ee50cd1a919b2b75e51a8169f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
+  ShowTopMostFoldoutHeaderGroup: 1
   swingDuration: 0.3
 --- !u!212 &117436564643011901
 SpriteRenderer:
