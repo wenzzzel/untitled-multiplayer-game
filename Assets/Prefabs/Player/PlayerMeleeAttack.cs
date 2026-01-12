@@ -42,7 +42,7 @@ public class PlayerMeleeAttack : NetworkBehaviour
         if (!IsOwner)
             return;
             
-        meleeWeaponScript.Swing();
+        meleeWeaponScript.SwingWeapon();
     }
 
 #endregion

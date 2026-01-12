@@ -21,39 +21,24 @@ public class MeleeWeapon : NetworkBehaviour
         weaponCollider = GetComponent<CircleCollider2D>();
     }
 
-    void Update()
-    {
-        
-    }
-
 #endregion
 #region Public methods
 
-    /// <summary>
-    /// Initiates a melee weapon swing. Called by the owner client.
-    /// Executes locally for instant feedback and syncs to other clients via RPC.
-    /// </summary>
-    public void Swing()
+    public void SwingWeapon()
     {
         if (isSwinging)
             return;
         
         StartCoroutine(SwingCoroutine()); // Execute swing locally for instant feedback
         
-        // Notify server and other clients
+        // Do the actual server side swing and hit detection
         if (IsOwner)
-        {
             SwingServerRpc();
-        }
     }
 
 #endregion
 #region Network methods
 
-    /// <summary>
-    /// Server RPC called by the owner client when they swing.
-    /// Server processes hit detection and notifies all other clients.
-    /// </summary>
     [ServerRpc]
     private void SwingServerRpc()
     {
