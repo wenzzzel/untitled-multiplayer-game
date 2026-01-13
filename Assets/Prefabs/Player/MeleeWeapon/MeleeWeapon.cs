@@ -7,12 +7,13 @@ using Unity.Netcode;
 [RequireComponent(typeof(CircleCollider2D))]
 public class MeleeWeapon : NetworkBehaviour
 {
-    [SerializeField] private float swingDuration = 0.3f; // Duration of the swing in seconds
+    [SerializeField] private float swingDuration = 0.3f;
+    [SerializeField] private float swingRadius = 0.2f;
+    [SerializeField] private int damage = 5;
+
     private bool isSwinging = false;
     private CircleCollider2D weaponCollider;
-    private readonly HashSet<Collider2D> hitThisSwing = new HashSet<Collider2D>();
-
-
+    private readonly HashSet<Collider2D> hitsThisSwing = new HashSet<Collider2D>();
 
 #region Lifecycle calls
 
@@ -29,11 +30,11 @@ public class MeleeWeapon : NetworkBehaviour
         if (isSwinging)
             return;
         
-        StartCoroutine(SwingCoroutine()); // Execute swing locally for instant feedback
+        StartCoroutine(Swing(runningOnServer: false)); // Execute swing locally for instant feedback
         
-        // Do the actual server side swing and hit detection
         if (IsOwner)
             SwingServerRpc();
+
     }
 
 #endregion
@@ -42,134 +43,79 @@ public class MeleeWeapon : NetworkBehaviour
     [ServerRpc]
     private void SwingServerRpc()
     {
-        // Start server-side swing with continuous hit detection
-        StartCoroutine(SwingCoroutineWithHitDetection());
+        StartCoroutine(Swing(runningOnServer: true));
         
-        // Notify other clients to show the swing animation
         SwingClientRpc();
     }
 
-    /// <summary>
-    /// Client RPC to show the swing animation on all non-owner clients.
-    /// The owner already executed the swing locally for instant feedback.
-    /// </summary>
     [ClientRpc]
     private void SwingClientRpc()
     {
-        // Only execute on clients that are NOT the owner
-        // (owner already executed swing locally)
+        // Only execute on clients that are NOT the owner (owner already executed swing locally)
         if (!IsOwner && !isSwinging)
         {
-            StartCoroutine(SwingCoroutine());
+            StartCoroutine(Swing(runningOnServer: false));
         }
     }
 
 #endregion
 #region Private methods
 
-    /// <summary>
-    /// Server-side swing coroutine that performs continuous hit detection during the swing.
-    /// Only runs on the server to ensure authoritative hit validation.
-    /// </summary>
-    private IEnumerator SwingCoroutineWithHitDetection()
+    private IEnumerator Swing(bool runningOnServer)
     {
+        // Prep state before swing
         isSwinging = true;
-        hitThisSwing.Clear(); // Reset hit tracking for new swing
-        
-        float elapsed = 0f;
-        float swingRadius = 0.2f;
-        Vector3 originalPosition = Vector3.zero;
+        var originalPosition = Vector3.zero;
+        var elapsed = 0f;
 
         while (elapsed < swingDuration)
         {
             elapsed += Time.deltaTime;
-            float progress = elapsed / swingDuration;
-            float angle = progress * 2f * Mathf.PI; // Full circle (0 to 2π)
+            var progress = elapsed / swingDuration;
+            var angle = progress * 2f * Mathf.PI; // Full circle (0 to 2π)
 
             // Calculate position on circle
-            float x = Mathf.Cos(angle) * swingRadius;
-            float y = Mathf.Sin(angle) * swingRadius;
+            var x = Mathf.Cos(angle) * swingRadius;
+            var y = Mathf.Sin(angle) * swingRadius;
 
             transform.localPosition = originalPosition + new Vector3(x, y, 0f);
 
-            // Perform hit detection at this frame
-            PerformHitDetection();
+            if (runningOnServer)
+                PerformHitDetectionOnServer();
 
             yield return null;
         }
 
-        // Ensure we end at the original position
-        transform.localPosition = originalPosition;
+        // Reset state after swing
         isSwinging = false;
+        transform.localPosition = originalPosition;
+        if (runningOnServer)
+            hitsThisSwing.Clear();    
     }
 
-    /// <summary>
-    /// Performs hit detection on the server using the weapon's CircleCollider2D.
-    /// This runs server-side to ensure authoritative hit validation.
-    /// Tracks hits to prevent hitting the same target multiple times in one swing.
-    /// </summary>
-    private void PerformHitDetection()
+    private void PerformHitDetectionOnServer()
     {
         if (weaponCollider == null)
             return;
 
-        // Get the world position and radius of the weapon collider
-        Vector2 weaponPosition = transform.position;
-        float radius = weaponCollider.radius * transform.lossyScale.x; // Account for scale
+        var weaponColliderRadius = weaponCollider.radius * transform.lossyScale.x;
 
-        // Only check for hits on the "Player" layer
-        int playerLayerMask = LayerMask.GetMask("Player");
-
-        // Perform overlap circle check to detect all colliders in range on the Player layer
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(weaponPosition, radius, playerLayerMask);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, weaponColliderRadius, LayerMask.GetMask("Player"));
 
         foreach (Collider2D hitCollider in hitColliders)
         {
-            // Skip if we hit ourselves (the weapon or the player wielding it)
-            if (hitCollider.transform == transform || hitCollider.transform.IsChildOf(transform.parent))
+            if (HitOurSelf(hitCollider) || AlreadyHitThisTarget(hitCollider))
                 continue;
 
-            // Skip if we already hit this collider during this swing
-            if (hitThisSwing.Contains(hitCollider))
-                continue;
+            hitsThisSwing.Add(hitCollider);
 
-            // Mark as hit for this swing
-            hitThisSwing.Add(hitCollider);
-
-            // Log the hit
-            Debug.Log($"[SERVER] Melee weapon hit: {hitCollider.gameObject.name} at position {hitCollider.transform.position}");
-
-            // Apply damage to the hit object here when you implement a Health system
-            hitCollider.GetComponent<PlayerHealth>()?.TakeDamage(5);
+            hitCollider.GetComponent<PlayerHealth>()?.TakeDamage(damage);
         }
     }
 
-    private IEnumerator SwingCoroutine()
-    {
-        isSwinging = true;
-        float elapsed = 0f;
-        float swingRadius = 0.2f;
-        Vector3 originalPosition = Vector3.zero;
+    private bool HitOurSelf(Collider2D hitCollider) => hitCollider.transform == transform || hitCollider.transform.IsChildOf(transform.parent);
 
-        while (elapsed < swingDuration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / swingDuration;
-            float angle = progress * 2f * Mathf.PI; // Full circle (0 to 2π)
-
-            // Calculate position on circle
-            float x = Mathf.Cos(angle) * swingRadius;
-            float y = Mathf.Sin(angle) * swingRadius;
-
-            transform.localPosition = originalPosition + new Vector3(x, y, 0f);
-
-            yield return null;
-        }
-
-        // Ensure we end at the original position
-        transform.localPosition = originalPosition;
-        isSwinging = false;
-    }
+    private bool AlreadyHitThisTarget(Collider2D hitCollider) => hitsThisSwing.Contains(hitCollider);
 
 #endregion
 
