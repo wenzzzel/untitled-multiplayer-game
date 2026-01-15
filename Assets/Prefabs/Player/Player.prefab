@@ -560,6 +560,7 @@ GameObject:
   - component: {fileID: 8021535074985106076}
   - component: {fileID: 4693855437781566072}
   - component: {fileID: 8718463150521850757}
+  - component: {fileID: 7290702797690439049}
   - component: {fileID: 6801466476059384185}
   - component: {fileID: 1018271027450719492}
   - component: {fileID: 5322919900742355515}
@@ -602,7 +603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 650837927
+  GlobalObjectIdHash: 553305891
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -689,6 +690,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   speed: 5
+  playerAnimationScript: {fileID: 7290702797690439049}
 --- !u!114 &6992069331174502488
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -747,6 +749,19 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   maxHealth: 100
   healthBarScript: {fileID: 8417596280057888915}
+--- !u!114 &7290702797690439049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768803651631816831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7072f699da3c3e48be809d7f4c24b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!212 &6801466476059384185
 SpriteRenderer:
   serializedVersion: 2
