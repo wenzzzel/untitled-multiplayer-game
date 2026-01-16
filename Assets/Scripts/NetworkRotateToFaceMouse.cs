@@ -1,9 +1,21 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 
+[RequireComponent(typeof(NetworkTransform))]
 public class RotateToFaceMouse : NetworkBehaviour
 {
+    private NetworkTransform networkTransform;
+
+    void Awake()
+    {
+        networkTransform = GetComponent<NetworkTransform>();
+
+        networkTransform.AuthorityMode = NetworkTransform.AuthorityModes.Server;
+        networkTransform.SyncRotAngleZ = true;
+    }
+
     void Update()
     {
         if (!(IsOwner && IsClient))

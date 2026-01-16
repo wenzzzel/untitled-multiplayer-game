@@ -25,11 +25,8 @@ public class TipMovement : MonoBehaviour
 
         var newPosition = newScaleValue.y * positionChangeFactor;
 
-        targetPosition = new Vector3(
-            transform.localPosition.x,
-            newPosition,
-            transform.localPosition.z
-        );
+        // Keep X and Z at 0 so the tip stays centered on the hook's axis
+        targetPosition = new Vector3(0f, newPosition, 0f);
 
         shouldLerp = true;
     }
