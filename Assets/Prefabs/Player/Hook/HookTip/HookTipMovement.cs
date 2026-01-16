@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TipMovement : MonoBehaviour
+public class HookTipMovement : MonoBehaviour
 {
 
     private float spriteSizeInPixels = 16f; //TODO: Fetch the actual sprite size instead of hardcoding.

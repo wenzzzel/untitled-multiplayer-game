@@ -8,7 +8,7 @@ public class PlayerHookAttack : NetworkBehaviour
     [SerializeField] private InputActionAsset inputActions;
 
     [Header("References to other scripts")]
-    [SerializeField] private Hook hookScript;
+    [SerializeField] private HookBody hookScript;
 
     private InputAction fireAction;
     

@@ -1,15 +1,15 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class Hook : NetworkBehaviour
+public class HookBody : NetworkBehaviour
 {  
     [Header("Hook Settings")]
     [SerializeField] private float stretchMultiplier = 10f;
     [SerializeField] private float stretchSpeed = 5f;
     
     [Header("References to other scripts")]
-    [SerializeField] private TipMovement tipMovementScript;
-    [SerializeField] private TipGraple tipGrapleScript;
+    [SerializeField] private HookTipMovement tipMovementScript;
+    [SerializeField] private HookTipGraple tipGrapleScript;
     
     private Vector3 originalScale;
     private NetworkVariable<Vector3> networkTargetScale = new NetworkVariable<Vector3>(

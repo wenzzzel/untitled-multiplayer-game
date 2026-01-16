@@ -1,10 +1,10 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CircleCollider2D))]
-public class TipGraple : MonoBehaviour
+public class HookTipGraple : MonoBehaviour
 {
     [Header("References to other scripts")]
-    [SerializeField] private Hook hookScript;
+    [SerializeField] private HookBody hookScript;
 
     private Transform grappledPlayer = null;
     private Rigidbody2D grappledPlayerRb = null;
@@ -16,7 +16,7 @@ public class TipGraple : MonoBehaviour
         GetComponent<CircleCollider2D>().isTrigger = true;
 
         if (hookScript == null)
-            Debug.LogError("Hook script reference not assigned in TipGraple script.");
+            Debug.LogError("Hook script reference not assigned in HookTipGraple script.");
     }
 
     void FixedUpdate()
