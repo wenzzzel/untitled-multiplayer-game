@@ -10,7 +10,7 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private InputActionAsset inputActions;
 
     [Header("Player Settings")]
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private float speed = 2.5f;
 
     [Header("References to other scripts")]
     [SerializeField] private PlayerAnimation playerAnimationScript;

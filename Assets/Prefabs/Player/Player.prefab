@@ -556,7 +556,6 @@ GameObject:
   - component: {fileID: 1025810682437187918}
   - component: {fileID: 1292543472374022522}
   - component: {fileID: 5002420520252582191}
-  - component: {fileID: 6992069331174502488}
   - component: {fileID: 8021535074985106076}
   - component: {fileID: 4693855437781566072}
   - component: {fileID: 8718463150521850757}
@@ -602,7 +601,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 650837927
+  GlobalObjectIdHash: 553305891
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -688,21 +687,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-  speed: 5
+  speed: 2.5
   playerAnimationScript: {fileID: 7290702797690439049}
---- !u!114 &6992069331174502488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4768803651631816831}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e16b9d90becfa6f0886ef656043f236d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RotateToFaceMouse
-  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &8021535074985106076
 MonoBehaviour:
   m_ObjectHideFlags: 0
