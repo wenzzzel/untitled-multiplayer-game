@@ -5,7 +5,11 @@ using UnityEngine;
 public class PlayerAnimation : NetworkBehaviour
 {
     private Animator animator;
-    private NetworkVariable<bool> isMoving = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private readonly NetworkVariable<bool> isMoving = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private readonly NetworkVariable<int> attackTriggerCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private int lastAttackTriggerCount = 0;
+    private int attackFrameCounter = 0; // Count frames since attack started
+    private string currentAnimation = "";
 
 #region Lifecycle calls
 
@@ -14,9 +18,37 @@ public class PlayerAnimation : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        attackTriggerCount.OnValueChanged += OnAttackTriggerCountChanged;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        attackTriggerCount.OnValueChanged -= OnAttackTriggerCountChanged;
+    }
+
     void Update()
     {
-        AnimateMovementLocally();
+        // Check if attack animation is currently playing
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        bool isPlayingAttack = stateInfo.IsName("Warrior_Attack_Blue");
+        
+        // Decrement attack frame counter
+        if (attackFrameCounter > 0)
+        {
+            attackFrameCounter--;
+        }
+
+        bool blockMovementForAttack = attackFrameCounter > 0 || isPlayingAttack;
+
+        // Only reset to movement if attack is truly done
+        if (!blockMovementForAttack)
+        {
+            AnimateMovementLocally();
+        }
     }
 
 #endregion
@@ -24,10 +56,29 @@ public class PlayerAnimation : NetworkBehaviour
 
     private void AnimateMovementLocally()
     {
+        string targetAnimation;
+        
         if (isMoving.Value)
-            animator.Play("Warrior_Run_Blue 0");
+            targetAnimation = "Warrior_Run_Blue 0";
         else
-            animator.Play("Warrior_Idle_Blue");
+            targetAnimation = "Warrior_Idle_Blue";
+        
+        // Only play if we're switching to a different animation
+        if (currentAnimation != targetAnimation)
+        {
+            currentAnimation = targetAnimation;
+            animator.Play(targetAnimation);
+        }
+    }
+
+    private void OnAttackTriggerCountChanged(int previousValue, int newValue)
+    {
+        // Only play if the count actually changed (means a new attack was triggered)
+        if (newValue != lastAttackTriggerCount && !IsOwner)
+        {
+            lastAttackTriggerCount = newValue;
+            animator.Play("Warrior_Attack_Blue");
+        }
     }
 
 #endregion
@@ -37,11 +88,22 @@ public class PlayerAnimation : NetworkBehaviour
     {
         if (isMoving.Value != moving)
             isMoving.Value = moving;
-        
-        if(isMoving.Value)
-            animator.Play("Warrior_Run_Blue 0");
-        else
-            animator.Play("Warrior_Idle_Blue");
+    }
+
+    public void PlayAttackAnimation()
+    {
+        if (!IsOwner)
+            return;
+
+        // Block movement animations for at least 60 frames (~1 second at 60fps)
+        attackFrameCounter = 60;
+
+        // Play locally immediately for instant feedback
+        currentAnimation = "Warrior_Attack_Blue";
+        animator.Play("Warrior_Attack_Blue");
+
+        // Increment counter to trigger animation on all other clients
+        attackTriggerCount.Value++;
     }
 
 #endregion

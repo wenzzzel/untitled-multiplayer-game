@@ -153,9 +153,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
   ShowTopMostFoldoutHeaderGroup: 1
-  swingDuration: 0.3
+  swingDuration: 1
   swingRadius: 0.2
   damage: 5
+  playerAnimationScript: {fileID: 7290702797690439049}
 --- !u!212 &117436564643011901
 SpriteRenderer:
   serializedVersion: 2

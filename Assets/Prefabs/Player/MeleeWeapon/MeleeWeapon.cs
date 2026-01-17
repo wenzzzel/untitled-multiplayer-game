@@ -7,9 +7,13 @@ using Unity.Netcode;
 [RequireComponent(typeof(CircleCollider2D))]
 public class MeleeWeapon : NetworkBehaviour
 {
-    [SerializeField] private float swingDuration = 0.3f;
+    [Header("Weapon Settings")]
+    [SerializeField] private float swingDuration = 1.0f;
     [SerializeField] private float swingRadius = 0.2f;
     [SerializeField] private int damage = 5;
+
+    [Header("References to other scripts")]
+    [SerializeField] private PlayerAnimation playerAnimationScript;
 
     private bool isSwinging = false;
     private CircleCollider2D weaponCollider;
@@ -20,6 +24,9 @@ public class MeleeWeapon : NetworkBehaviour
     void Start()
     {
         weaponCollider = GetComponent<CircleCollider2D>();
+
+        if (playerAnimationScript == null)
+            Debug.LogError("PlayerAnimation script not assigned in MeleeWeapon script.");
     }
 
 #endregion
@@ -29,6 +36,8 @@ public class MeleeWeapon : NetworkBehaviour
     {
         if (isSwinging)
             return;
+        
+        playerAnimationScript.PlayAttackAnimation();
         
         StartCoroutine(Swing(runningOnServer: false)); // Execute swing locally for instant feedback
         
