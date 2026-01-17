@@ -8,7 +8,6 @@ public class PlayerAnimation : NetworkBehaviour
     private readonly NetworkVariable<bool> isMoving = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     private readonly NetworkVariable<int> attackTriggerCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     private int lastAttackTriggerCount = 0;
-    private int attackFrameCounter = 0; // Count frames since attack started
     private string currentAnimation = "";
 
 #region Lifecycle calls
@@ -35,14 +34,8 @@ public class PlayerAnimation : NetworkBehaviour
         // Check if attack animation is currently playing
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         bool isPlayingAttack = stateInfo.IsName("Warrior_Attack_Blue");
-        
-        // Decrement attack frame counter
-        if (attackFrameCounter > 0)
-        {
-            attackFrameCounter--;
-        }
 
-        bool blockMovementForAttack = attackFrameCounter > 0 || isPlayingAttack;
+        bool blockMovementForAttack = isPlayingAttack;
 
         // Only reset to movement if attack is truly done
         if (!blockMovementForAttack)
@@ -94,9 +87,6 @@ public class PlayerAnimation : NetworkBehaviour
     {
         if (!IsOwner)
             return;
-
-        // Block movement animations for at least 60 frames (~1 second at 60fps)
-        attackFrameCounter = 60;
 
         // Play locally immediately for instant feedback
         currentAnimation = "Warrior_Attack_Blue";
