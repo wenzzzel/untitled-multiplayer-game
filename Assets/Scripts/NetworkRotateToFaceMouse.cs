@@ -28,10 +28,8 @@ public class RotateToFaceMouse : NetworkBehaviour
     {
         var mouseWorldPosition = GetMousePositionInWorld();
         
-        // Calculate direction from player to mouse
         var direction = (mouseWorldPosition - transform.position).normalized;
         
-        // Calculate angle in degrees
         var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         
         // Apply rotation (subtract 90 if your sprite faces up by default)

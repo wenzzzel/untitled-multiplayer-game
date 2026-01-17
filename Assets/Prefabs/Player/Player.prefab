@@ -560,6 +560,7 @@ GameObject:
   - component: {fileID: 4693855437781566072}
   - component: {fileID: 8718463150521850757}
   - component: {fileID: 7290702797690439049}
+  - component: {fileID: 7651466842670518583}
   - component: {fileID: 6801466476059384185}
   - component: {fileID: 1018271027450719492}
   - component: {fileID: 5322919900742355515}
@@ -601,7 +602,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 553305891
+  GlobalObjectIdHash: 650837927
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -746,6 +747,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7072f699da3c3e48be809d7f4c24b15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &7651466842670518583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768803651631816831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7451af15895e55b43b4ce2c7b46f952e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkFlipHorizontalToFaceMouse
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!212 &6801466476059384185
 SpriteRenderer:
