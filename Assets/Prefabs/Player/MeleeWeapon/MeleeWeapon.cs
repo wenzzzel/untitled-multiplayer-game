@@ -8,9 +8,9 @@ using Unity.Netcode;
 public class MeleeWeapon : NetworkBehaviour
 {
     [Header("Weapon Settings")]
-    [SerializeField] private float swingDuration = 1.0f;
-    [SerializeField] private float swingRadius = 0.2f;
-    [SerializeField] private int damage = 5;
+    [SerializeField] private float swingDuration = 0.2f;
+    [SerializeField] private float swingRadius = 0.4f;
+    [SerializeField] private int damage = 10;
 
     [Header("References to other scripts")]
     [SerializeField] private PlayerAnimation playerAnimationScript;
