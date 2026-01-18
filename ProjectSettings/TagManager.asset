@@ -47,7 +47,7 @@ TagManager:
   - name: Player
     uniqueID: 2408079549
     locked: 0
-  - name: TIlemap above player
+  - name: Tilemap above player
     uniqueID: 691750517
     locked: 0
   - name: UI (in world space)
