@@ -357,8 +357,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hook
   ShowTopMostFoldoutHeaderGroup: 1
-  stretchMultiplier: 10
-  stretchSpeed: 5
+  stretchMultiplier: 40
+  stretchSpeed: 10
   tipMovementScript: {fileID: 2109703435349626518}
   tipGrapleScript: {fileID: 8893374096311310700}
 --- !u!1 &2203260561462229914
@@ -609,6 +609,7 @@ GameObject:
   - component: {fileID: 7290702797690439049}
   - component: {fileID: 7651466842670518583}
   - component: {fileID: 3246553270666553582}
+  - component: {fileID: 6396731227243013554}
   - component: {fileID: 6801466476059384185}
   - component: {fileID: 1018271027450719492}
   - component: {fileID: 5322919900742355515}
@@ -629,7 +630,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4768803651631816831}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.0010506785, w: 0.99999946}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -810,6 +811,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLightControl
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &6396731227243013554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768803651631816831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea3811fc7aad2d84f82806260461de74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraFollowPlayer
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!212 &6801466476059384185
 SpriteRenderer:
   serializedVersion: 2
@@ -903,7 +917,7 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.15}
   m_Radius: 0.25
 --- !u!50 &5322919900742355515
 Rigidbody2D:
@@ -931,7 +945,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!95 &687697462743282402
 Animator:
   serializedVersion: 7
@@ -994,8 +1008,8 @@ MonoBehaviour:
     m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
-  m_PointLightInnerRadius: 2.5
-  m_PointLightOuterRadius: 3
+  m_PointLightInnerRadius: 3.5
+  m_PointLightOuterRadius: 4
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1

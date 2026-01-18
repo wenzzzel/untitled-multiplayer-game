@@ -4,8 +4,8 @@ using UnityEngine;
 public class HookBody : NetworkBehaviour
 {  
     [Header("Hook Settings")]
-    [SerializeField] private float stretchMultiplier = 10f;
-    [SerializeField] private float stretchSpeed = 5f;
+    [SerializeField] private float stretchMultiplier = 40f;
+    [SerializeField] private float stretchSpeed = 10f;
     
     [Header("References to other scripts")]
     [SerializeField] private HookTipMovement tipMovementScript;
