@@ -10,6 +10,7 @@ public class HookBody : NetworkBehaviour
     [Header("References to other scripts")]
     [SerializeField] private HookTipMovement tipMovementScript;
     [SerializeField] private HookTipGraple tipGrapleScript;
+    [SerializeField] private PlayerMovement playerMovementScript;
     
     private Vector3 originalScale;
     private NetworkVariable<Vector3> networkTargetScale = new NetworkVariable<Vector3>(
@@ -27,6 +28,9 @@ public class HookBody : NetworkBehaviour
 
         if (tipMovementScript == null)
             Debug.LogError("TipMovement script reference not assigned in Hook script.");
+        
+        if (playerMovementScript == null)
+            Debug.LogError("PlayerMovement script reference not assigned in Hook script.");
     }
 
     public override void OnNetworkSpawn()
@@ -52,16 +56,23 @@ public class HookBody : NetworkBehaviour
         {
             ResetHookOnServer();
             hookShouldExtend = false;
+
+            EnableMovement();
+
             return;
         }
 
         if (IsHookFullyRetracted())
         {
             tipGrapleScript.ReleaseGrappledPlayer();
+
+            EnableMovement();
+            
             return;
         }
-        
-        // Hook wasn't fully extended or retracted yet, continue lerping
+
+        DisableMovement();
+            
         transform.localScale = Vector3.Lerp(
             transform.localScale, 
             networkTargetScale.Value, 
@@ -86,6 +97,9 @@ public class HookBody : NetworkBehaviour
     }
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
+
+    private void DisableMovement() => playerMovementScript.enabled = false;
+    private void EnableMovement() => playerMovementScript.enabled = true;
 
 #endregion
 #region Public methods
