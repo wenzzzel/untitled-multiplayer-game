@@ -6,6 +6,7 @@ public class HookTipMovement : MonoBehaviour
     private float spriteSizeInPixels = 16f; //TODO: Fetch the actual sprite size instead of hardcoding.
     private bool shouldLerp = false;
     private Vector3 targetPosition = new();
+    private float tipMovementSpeed = 5f;
 
     void Update()
     {
@@ -14,13 +15,15 @@ public class HookTipMovement : MonoBehaviour
             transform.localPosition = Vector3.Lerp(
                 transform.localPosition,
                 targetPosition,
-                Time.deltaTime * 5
+                Time.deltaTime * tipMovementSpeed
             );
         }
     }
 
-    public void MoveTip(Vector3 newScaleValue)
+    public void MoveTip(Vector3 newScaleValue, float hookBodyStretchSpeed)
     {
+        this.tipMovementSpeed = hookBodyStretchSpeed;
+
         var positionChangeFactor = spriteSizeInPixels / 100f;
 
         var newPosition = newScaleValue.y * positionChangeFactor;

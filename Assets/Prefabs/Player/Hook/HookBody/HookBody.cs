@@ -4,9 +4,15 @@ using UnityEngine;
 public class HookBody : NetworkBehaviour
 {  
     [Header("Hook Settings")]
-    [SerializeField] private float stretchMultiplier = 40f;
-    [SerializeField] private float stretchSpeed = 10f;
+    [Range(0f, 100f)]
+    [Tooltip("Multiplier for how much the hook stretches.")]
+    [SerializeField] private float stretchMultiplier = 30f;
+    [Range(0f, 100f)]
+    [Tooltip("Speed at which the hook stretches. Only runs server side so chaning on client during runtime wont do anything.")]
+    [SerializeField] private float stretchSpeed = 5f;
     
+    [Space(5)]
+
     [Header("References to other scripts")]
     [SerializeField] private HookTipMovement tipMovementScript;
     [SerializeField] private HookTipGraple tipGrapleScript;
@@ -93,7 +99,7 @@ public class HookBody : NetworkBehaviour
         else
             hookShouldExtend = true;
         
-        tipMovementScript.MoveTip(newValue);
+        tipMovementScript.MoveTip(newValue, stretchSpeed);
     }
 
     private bool IsHookInSyncWithServer() => Vector3.Distance(transform.localScale, networkTargetScale.Value) < 0.01f;
