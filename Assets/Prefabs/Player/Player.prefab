@@ -773,6 +773,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   maxHealth: 100
   healthBarScript: {fileID: 8417596280057888915}
+  playerAnimationScript: {fileID: 7290702797690439049}
 --- !u!114 &7290702797690439049
 MonoBehaviour:
   m_ObjectHideFlags: 0

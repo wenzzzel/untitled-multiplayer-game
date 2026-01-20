@@ -9,6 +9,7 @@ public class PlayerHealth : NetworkBehaviour
 
     [Header("References to other scripts")]
     [SerializeField] private HealthBar healthBarScript;
+    [SerializeField] private PlayerAnimation playerAnimationScript;
 
 
     private NetworkVariable<int> networkCurrentHealth = new NetworkVariable<int>(
@@ -45,8 +46,8 @@ public class PlayerHealth : NetworkBehaviour
 #region Private methods
 
     private void Die()
-    {
-        Debug.Log("Player has died.");
+    {   
+        playerAnimationScript.PlayDeathAnimation();
         // Add respawn or game over logic here
     }
 
@@ -54,6 +55,9 @@ public class PlayerHealth : NetworkBehaviour
     {
         Debug.Log($"Current health updated via network variable: {newHealthValue}");
         healthBarScript.UpdateHealthBar(newHealthValue);
+
+        if (newHealthValue <= 0)
+            Die();
     }
 
 #endregion

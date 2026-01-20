@@ -96,6 +96,12 @@ public class PlayerAnimation : NetworkBehaviour
         attackTriggerCount.Value++;
     }
 
+    public void PlayDeathAnimation()
+    {
+        Debug.Log("Playing death animation");
+        animator.Play("Dust 2 Animation"); //TODO: Anything else needed to do here to make it animate correctly on multiplayer games?
+    }
+
 #endregion
     
 }
