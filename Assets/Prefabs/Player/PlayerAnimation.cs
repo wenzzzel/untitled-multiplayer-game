@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class PlayerAnimation : NetworkBehaviour
     private readonly NetworkVariable<int> attackTriggerCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     private int lastAttackTriggerCount = 0;
     private string currentAnimation = "";
+
+    public float lastAnimationDuration = 0f;
 
 #region Lifecycle calls
 
@@ -94,6 +97,8 @@ public class PlayerAnimation : NetworkBehaviour
 
         // Increment counter to trigger animation on all other clients
         attackTriggerCount.Value++;
+
+        StartCoroutine(SetAnimationDuration());
     }
 
     public float PlayDeathAnimation()
@@ -111,6 +116,18 @@ public class PlayerAnimation : NetworkBehaviour
     public void EnableAnimator()
     {
         animator.enabled = true;
+    }
+
+#endregion
+#region Coroutines
+
+    public IEnumerator SetAnimationDuration()
+    {
+        // Wait one frame to ensure animator state is updated
+        yield return null;
+
+        // Update the public field with the duration
+        lastAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
     }
 
 #endregion

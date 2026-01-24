@@ -8,7 +8,7 @@ using Unity.Netcode;
 public class MeleeWeapon : NetworkBehaviour
 {
     [Header("Weapon Settings")]
-    [SerializeField] private float swingDuration = 0.2f;
+    // private float swingDuration = 5f;
     [SerializeField] private float swingRadius = 0.4f;
     [SerializeField] private int damage = 10;
 
@@ -71,15 +71,24 @@ public class MeleeWeapon : NetworkBehaviour
 
     private IEnumerator Swing(bool runningOnServer)
     {
+        // TODO: Is this needed?
+        // Wait one frame to ensure any state changes are applied
+        yield return null; 
+
+        var animationDuration = playerAnimationScript.lastAnimationDuration;
+
         // Prep state before swing
         isSwinging = true;
         var originalPosition = Vector3.zero;
         var elapsed = 0f;
 
-        while (elapsed < swingDuration)
+        // Debug.Log($"Swinging for {swingDuration} seconds.");
+        Debug.Log($"Animating for {animationDuration} seconds.");
+
+        while (elapsed < animationDuration)
         {
             elapsed += Time.deltaTime;
-            var progress = elapsed / swingDuration;
+            var progress = elapsed / animationDuration;
             var angle = progress * 2f * Mathf.PI; // Full circle (0 to 2π)
 
             // Calculate position on circle
