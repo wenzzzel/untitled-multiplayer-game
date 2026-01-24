@@ -96,18 +96,6 @@ public class PlayerAnimation : NetworkBehaviour
         attackTriggerCount.Value++;
     }
 
-    public float PlayAttackAnimation2()
-    {
-        animator.Play("Warrior_Attack_Blue");
-
-        var currentState = animator.GetCurrentAnimatorStateInfo(0);
-        var animationLength = currentState.length;
-        var animationSpeed = currentState.speed;
-        var baseAnimationLength = animationLength / animationSpeed;
-
-        return baseAnimationLength;
-    }
-
     public float PlayDeathAnimation()
     {
         animator.Play("Dust 2 Animation");
