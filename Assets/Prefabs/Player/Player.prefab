@@ -607,6 +607,10 @@ GameObject:
   - component: {fileID: 4693855437781566072}
   - component: {fileID: 8718463150521850757}
   - component: {fileID: 7290702797690439049}
+  - component: {fileID: 2847513070760675963}
+  - component: {fileID: 6889769041495273307}
+  - component: {fileID: 946505158136186964}
+  - component: {fileID: 6308840065573360546}
   - component: {fileID: 7651466842670518583}
   - component: {fileID: 3246553270666553582}
   - component: {fileID: 6396731227243013554}
@@ -786,6 +790,63 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
   ShowTopMostFoldoutHeaderGroup: 1
+  playerMovementAnimationScript: {fileID: 6889769041495273307}
+  playerAttackAnimationScript: {fileID: 946505158136186964}
+  playerAnimationDeathScript: {fileID: 6308840065573360546}
+  playerAnimationHelpersScript: {fileID: 2847513070760675963}
+--- !u!114 &2847513070760675963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768803651631816831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53e4fd1a889563542a91442bb996e02d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationHelpers
+--- !u!114 &6889769041495273307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768803651631816831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938ed9b8f08aa534fb4dc40edd13f123, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementAnimation
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &946505158136186964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768803651631816831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001b3d88199174fb03d6a054bedf5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackAnimation
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerAnimationHelpersScript: {fileID: 2847513070760675963}
+--- !u!114 &6308840065573360546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768803651631816831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2a6bf2c200f5cb4ead3a8744e025de1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationDeath
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerAnimationHelpersScript: {fileID: 2847513070760675963}
 --- !u!114 &7651466842670518583
 MonoBehaviour:
   m_ObjectHideFlags: 0
