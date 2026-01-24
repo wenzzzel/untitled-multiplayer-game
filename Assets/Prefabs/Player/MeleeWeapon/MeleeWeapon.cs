@@ -8,7 +8,6 @@ using Unity.Netcode;
 public class MeleeWeapon : NetworkBehaviour
 {
     [Header("Weapon Settings")]
-    // private float swingDuration = 5f;
     [SerializeField] private float swingRadius = 0.4f;
     [SerializeField] private int damage = 10;
 
@@ -37,12 +36,14 @@ public class MeleeWeapon : NetworkBehaviour
         if (isSwinging)
             return;
 
-        playerAnimationScript.PlayAttackAnimation();
+        if (!IsOwner)
+            return;
+
+        playerAnimationScript.AnimateAttack();
         
         StartCoroutine(Swing(runningOnServer: false)); // Execute swing locally for instant feedback
         
-        if (IsOwner)
-            SwingServerRpc();
+        SwingServerRpc();
     }
 
 #endregion
@@ -51,6 +52,16 @@ public class MeleeWeapon : NetworkBehaviour
     [ServerRpc]
     private void SwingServerRpc()
     {
+        // Ensure animation duration is set on server before swinging
+        StartCoroutine(SwingOnServerWithAnimation());
+    }
+
+    private IEnumerator SwingOnServerWithAnimation()
+    {
+        // Start setting the animation duration on the server
+        yield return StartCoroutine(playerAnimationScript.SetAnimationDurationFromServer());
+        
+        // Now swing with the correct duration
         StartCoroutine(Swing(runningOnServer: true));
         
         SwingClientRpc();
@@ -71,19 +82,17 @@ public class MeleeWeapon : NetworkBehaviour
 
     private IEnumerator Swing(bool runningOnServer)
     {
-        // TODO: Is this needed?
-        // Wait one frame to ensure any state changes are applied
-        yield return null; 
+        // Wait one frame so that the lastAnimationDuration has got the value of the attack animation
+        yield return null;
+        yield return null;
+        var animationDuration = playerAnimationScript.GetLastAnimationDuration();
 
-        var animationDuration = playerAnimationScript.lastAnimationDuration;
+        Debug.Log($"MeleeWeapon.Swing started. Animation duration: {animationDuration} seconds.");
 
         // Prep state before swing
         isSwinging = true;
         var originalPosition = Vector3.zero;
         var elapsed = 0f;
-
-        // Debug.Log($"Swinging for {swingDuration} seconds.");
-        Debug.Log($"Animating for {animationDuration} seconds.");
 
         while (elapsed < animationDuration)
         {

@@ -38,11 +38,6 @@ public class PlayerHealth : NetworkBehaviour
         networkCurrentHealth.Value = maxHealth; // Initialize the network variable on the server
     }
 
-    void Update()
-    {
-        
-    }
-
 #endregion
 #region Private methods
 
@@ -51,23 +46,6 @@ public class PlayerHealth : NetworkBehaviour
         StartCoroutine(DespawnCoroutine());
 
         StartCoroutine(RespawnCoroutine());
-    }
-
-    private IEnumerator DespawnCoroutine()
-    {   
-        var animationLength = playerAnimationScript.PlayDeathAnimation();
-        yield return new WaitForSeconds(animationLength);
-
-        Despawn();
-    }
-
-    private IEnumerator RespawnCoroutine()
-    {
-        Debug.Log("Waiting for 10 seconds before respawning...");
-        var respawnTime = 10f;
-        yield return new WaitForSeconds(respawnTime);
-
-        Respawn();
     }
 
     private void Respawn() //TODO: Just a dummy method for now...
@@ -100,6 +78,31 @@ public class PlayerHealth : NetworkBehaviour
             return;
         
         networkCurrentHealth.Value = Math.Max(0, networkCurrentHealth.Value - damageAmount);
+    }
+
+#endregion
+#region Coroutines
+
+    private IEnumerator DespawnCoroutine()
+    {   
+        playerAnimationScript.AnimateDeath();
+        
+        // Wait one frame to ensure lastAnimationDuration is updated
+        yield return null; 
+        var deathAnimationDuration = playerAnimationScript.GetLastAnimationDuration();
+
+        yield return new WaitForSeconds(deathAnimationDuration);
+
+        Despawn();
+    }
+
+    private IEnumerator RespawnCoroutine()
+    {
+        Debug.Log("Waiting for 10 seconds before respawning...");
+        var respawnTime = 10f;
+        yield return new WaitForSeconds(respawnTime);
+
+        Respawn();
     }
 
 #endregion

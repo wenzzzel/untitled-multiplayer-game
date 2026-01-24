@@ -11,7 +11,9 @@ public class PlayerAnimation : NetworkBehaviour
     private int lastAttackTriggerCount = 0;
     private string currentAnimation = "";
 
-    public float lastAnimationDuration = 0f;
+    // Keeps track of the duration of the last played animation. 
+    // Can be used by others scripts that want to wait until the animation is done.
+    private float lastAnimationDuration = 0f;
 
 #region Lifecycle calls
 
@@ -74,6 +76,7 @@ public class PlayerAnimation : NetworkBehaviour
         {
             lastAttackTriggerCount = newValue;
             animator.Play("Warrior_Attack_Blue");
+            StartCoroutine(SetAnimationDuration());
         }
     }
 
@@ -86,9 +89,9 @@ public class PlayerAnimation : NetworkBehaviour
             isMoving.Value = moving;
     }
 
-    public void PlayAttackAnimation()
+    public void AnimateAttack()
     {
-        if (!IsOwner)
+        if (!IsOwner) //TODO: Not sure if this is needed
             return;
 
         // Play locally immediately for instant feedback
@@ -101,11 +104,11 @@ public class PlayerAnimation : NetworkBehaviour
         StartCoroutine(SetAnimationDuration());
     }
 
-    public float PlayDeathAnimation()
+    public void AnimateDeath()
     {
         animator.Play("Dust 2 Animation");
-        var animationLength = animator.GetCurrentAnimatorStateInfo(0).length;
-        return animationLength;
+        
+        StartCoroutine(SetAnimationDuration());
     }
 
     public void DisableAnimator()
@@ -118,18 +121,48 @@ public class PlayerAnimation : NetworkBehaviour
         animator.enabled = true;
     }
 
+    ///<summary>
+    /// Returns the duration of the last played animation.
+    /// Always call this from a coroutine after waiting one frame to ensure the value is updated.
+    ///</summary>
+    public float GetLastAnimationDuration()
+    {
+        return lastAnimationDuration;
+    }
+
 #endregion
 #region Coroutines
 
-    public IEnumerator SetAnimationDuration()
+    private IEnumerator SetAnimationDuration()
     {
         // Wait one frame to ensure animator state is updated
         yield return null;
 
         // Update the public field with the duration
-        lastAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
+        var duration = animator.GetCurrentAnimatorStateInfo(0).length;
+        lastAnimationDuration = duration;
+        Debug.Log($"Set lastAnimationDuration to {duration} seconds.");
+    }
+
+    /// <summary>
+    /// Sets the animation duration for the attack animation on the server.
+    /// Call this on the server before reading GetLastAnimationDuration().
+    /// </summary>
+    public IEnumerator SetAnimationDurationFromServer()
+    {
+        // Play the attack animation on the server so we can read its duration
+        animator.Play("Warrior_Attack_Blue");
+        
+        // Wait one frame to ensure animator state is updated
+        yield return null;
+
+        // Update the field with the duration
+        var duration = animator.GetCurrentAnimatorStateInfo(0).length;
+        lastAnimationDuration = duration;
+        Debug.Log($"Server: Set lastAnimationDuration to {duration} seconds.");
     }
 
 #endregion
+
     
 }
