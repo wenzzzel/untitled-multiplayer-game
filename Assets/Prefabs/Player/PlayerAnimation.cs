@@ -96,10 +96,33 @@ public class PlayerAnimation : NetworkBehaviour
         attackTriggerCount.Value++;
     }
 
-    public void PlayDeathAnimation()
+    public float PlayAttackAnimation2()
     {
-        Debug.Log("Playing death animation");
-        animator.Play("Dust 2 Animation"); //TODO: Anything else needed to do here to make it animate correctly on multiplayer games?
+        animator.Play("Warrior_Attack_Blue");
+
+        var currentState = animator.GetCurrentAnimatorStateInfo(0);
+        var animationLength = currentState.length;
+        var animationSpeed = currentState.speed;
+        var baseAnimationLength = animationLength / animationSpeed;
+
+        return baseAnimationLength;
+    }
+
+    public float PlayDeathAnimation()
+    {
+        animator.Play("Dust 2 Animation");
+        var animationLength = animator.GetCurrentAnimatorStateInfo(0).length;
+        return animationLength;
+    }
+
+    public void DisableAnimator()
+    {
+        animator.enabled = false;
+    }
+
+    public void EnableAnimator()
+    {
+        animator.enabled = true;
     }
 
 #endregion

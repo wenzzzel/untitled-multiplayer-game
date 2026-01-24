@@ -8,7 +8,7 @@ using Unity.Netcode;
 public class MeleeWeapon : NetworkBehaviour
 {
     [Header("Weapon Settings")]
-    [SerializeField] private float swingDuration = 0.2f;
+    // [SerializeField] private float swingDuration = 0.2f;
     [SerializeField] private float swingRadius = 0.4f;
     [SerializeField] private int damage = 10;
 
@@ -37,40 +37,41 @@ public class MeleeWeapon : NetworkBehaviour
         if (isSwinging)
             return;
         
-        playerAnimationScript.PlayAttackAnimation();
+        var animationLength = playerAnimationScript.PlayAttackAnimation2();
+
+        // playerAnimationScript.PlayAttackAnimation();
         
-        StartCoroutine(Swing(runningOnServer: false)); // Execute swing locally for instant feedback
+        StartCoroutine(Swing(runningOnServer: false, animationLength)); // Execute swing locally for instant feedback
         
         if (IsOwner)
-            SwingServerRpc();
-
+            SwingServerRpc(animationLength);
     }
 
 #endregion
 #region Network methods
 
     [ServerRpc]
-    private void SwingServerRpc()
+    private void SwingServerRpc(float swingDuration)
     {
-        StartCoroutine(Swing(runningOnServer: true));
+        StartCoroutine(Swing(runningOnServer: true, swingDuration));
         
-        SwingClientRpc();
+        SwingClientRpc(swingDuration);
     }
 
     [ClientRpc]
-    private void SwingClientRpc()
+    private void SwingClientRpc(float swingDuration)
     {
         // Only execute on clients that are NOT the owner (owner already executed swing locally)
         if (!IsOwner && !isSwinging)
         {
-            StartCoroutine(Swing(runningOnServer: false));
+            StartCoroutine(Swing(runningOnServer: false, swingDuration));
         }
     }
 
 #endregion
 #region Private methods
 
-    private IEnumerator Swing(bool runningOnServer)
+    private IEnumerator Swing(bool runningOnServer, float swingDuration)
     {
         // Prep state before swing
         isSwinging = true;

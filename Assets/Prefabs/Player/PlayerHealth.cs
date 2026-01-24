@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using Unity.Netcode;
 using System;
 
@@ -46,9 +47,39 @@ public class PlayerHealth : NetworkBehaviour
 #region Private methods
 
     private void Die()
+    {
+        StartCoroutine(DespawnCoroutine());
+
+        StartCoroutine(RespawnCoroutine());
+    }
+
+    private IEnumerator DespawnCoroutine()
     {   
-        playerAnimationScript.PlayDeathAnimation();
-        // Add respawn or game over logic here
+        var animationLength = playerAnimationScript.PlayDeathAnimation();
+        yield return new WaitForSeconds(animationLength);
+
+        Despawn();
+    }
+
+    private IEnumerator RespawnCoroutine()
+    {
+        Debug.Log("Waiting for 10 seconds before respawning...");
+        var respawnTime = 10f;
+        yield return new WaitForSeconds(respawnTime);
+
+        Respawn();
+    }
+
+    private void Respawn() //TODO: Just a dummy method for now...
+    {
+        playerAnimationScript.EnableAnimator();
+        Debug.Log("Respawned player.");
+    }
+
+    private void Despawn()
+    {
+        playerAnimationScript.DisableAnimator(); //TODO: Just a dummy method for now...
+        Debug.Log("Despawned player.");
     }
 
     private void OnCurrentHealthChanged(int previousValue, int newHealthValue)
