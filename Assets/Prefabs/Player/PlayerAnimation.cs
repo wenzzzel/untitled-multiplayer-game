@@ -10,6 +10,9 @@ public class PlayerAnimation : NetworkBehaviour
     private readonly NetworkVariable<int> attackTriggerCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     private int lastAttackTriggerCount = 0;
     private string currentAnimation = "";
+    private const string RUN_ANIMATION_NAME = "Warrior_Run_Blue 0";
+    private const string IDLE_ANIMATION_NAME = "Warrior_Idle_Blue";
+    private const string ATTACK_ANIMATION_NAME = "Warrior_Attack_Blue";
 
     // Keeps track of the duration of the last played animation. 
     // Can be used by others scripts that want to wait until the animation is done.
@@ -36,14 +39,7 @@ public class PlayerAnimation : NetworkBehaviour
 
     void Update()
     {
-        // Check if attack animation is currently playing
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        bool isPlayingAttack = stateInfo.IsName("Warrior_Attack_Blue");
-
-        bool blockMovementForAttack = isPlayingAttack;
-
-        // Only reset to movement if attack is truly done
-        if (!blockMovementForAttack)
+        if (!IsAttackAnimationPlaying())
         {
             AnimateMovementLocally();
         }
@@ -57,9 +53,9 @@ public class PlayerAnimation : NetworkBehaviour
         string targetAnimation;
         
         if (isMoving.Value)
-            targetAnimation = "Warrior_Run_Blue 0";
+            targetAnimation = RUN_ANIMATION_NAME;
         else
-            targetAnimation = "Warrior_Idle_Blue";
+            targetAnimation = IDLE_ANIMATION_NAME;
         
         // Only play if we're switching to a different animation
         if (currentAnimation != targetAnimation)
@@ -71,13 +67,14 @@ public class PlayerAnimation : NetworkBehaviour
 
     private void OnAttackTriggerCountChanged(int previousValue, int newValue)
     {
-        // Only play if the count actually changed (means a new attack was triggered)
-        if (newValue != lastAttackTriggerCount && !IsOwner)
-        {
-            lastAttackTriggerCount = newValue;
-            animator.Play("Warrior_Attack_Blue");
-            StartCoroutine(SetAnimationDuration());
-        }
+        animator.Play(ATTACK_ANIMATION_NAME);
+        StartCoroutine(SetAnimationDuration());
+    }
+
+    private bool IsAttackAnimationPlaying()
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        return stateInfo.IsName(ATTACK_ANIMATION_NAME);
     }
 
 #endregion
@@ -95,19 +92,17 @@ public class PlayerAnimation : NetworkBehaviour
             return;
 
         // Play locally immediately for instant feedback
-        currentAnimation = "Warrior_Attack_Blue";
-        animator.Play("Warrior_Attack_Blue");
+        currentAnimation = ATTACK_ANIMATION_NAME;
+        animator.Play(ATTACK_ANIMATION_NAME);
+        StartCoroutine(SetAnimationDuration());
 
         // Increment counter to trigger animation on all other clients
         attackTriggerCount.Value++;
-
-        StartCoroutine(SetAnimationDuration());
     }
 
     public void AnimateDeath()
     {
         animator.Play("Dust 2 Animation");
-        
         StartCoroutine(SetAnimationDuration());
     }
 
@@ -151,7 +146,7 @@ public class PlayerAnimation : NetworkBehaviour
     public IEnumerator SetAnimationDurationFromServer()
     {
         // Play the attack animation on the server so we can read its duration
-        animator.Play("Warrior_Attack_Blue");
+        animator.Play(ATTACK_ANIMATION_NAME);
         
         // Wait one frame to ensure animator state is updated
         yield return null;
