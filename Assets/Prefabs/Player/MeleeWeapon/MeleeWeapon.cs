@@ -33,13 +33,10 @@ public class MeleeWeapon : NetworkBehaviour
 
     public void SwingWeapon()
     {
-        if (isSwinging)
-            return;
-
-        if (!IsOwner)
+        if (isSwinging || !IsOwner)
             return;
         
-        StartCoroutine(Swing(runningOnServer: false)); // Execute swing locally for instant feedback
+        StartCoroutine(Swing()); // Execute swing locally for instant feedback
         
         SwingServerRpc();
     }
@@ -47,41 +44,33 @@ public class MeleeWeapon : NetworkBehaviour
 #endregion
 #region Network methods
 
+    private IEnumerator Swing()
+    {
+        var result = new AnimationResult();
+        yield return StartCoroutine(playerAnimationScript.AnimateAttack(result));
+        
+        StartCoroutine(MoveHitbox(result.Duration));
+    }
+
     [ServerRpc]
     private void SwingServerRpc()
     {
-        if (isSwinging)
-            return;
+        StartCoroutine(Swing());
 
-        StartCoroutine(Swing(runningOnServer: true));
+        SwingClientRpc();
     }
 
     [ClientRpc]
     private void SwingClientRpc()
     {
-        if (isSwinging || IsOwner)
-            return;
-
-        StartCoroutine(Swing(runningOnServer: false));
-    }
-
-    private IEnumerator Swing(bool runningOnServer)
-    {
-        var result = new AnimationResult();
-        yield return StartCoroutine(playerAnimationScript.AnimateAttack(result));
-        
-        StartCoroutine(MoveHitbox(result.Duration, runningOnServer));
-
-        SwingClientRpc();
+        StartCoroutine(Swing());
     }
 
 #endregion
 #region Private methods
 
-    private IEnumerator MoveHitbox(float animationDuration, bool runningOnServer)
+    private IEnumerator MoveHitbox(float animationDuration)
     {
-        Debug.Log($"MeleeWeapon.SwingWithDuration started. Animation duration: {animationDuration} seconds.");
-
         // Prep state before swing
         isSwinging = true;
         var originalPosition = Vector3.zero;
@@ -99,7 +88,7 @@ public class MeleeWeapon : NetworkBehaviour
 
             transform.localPosition = originalPosition + new Vector3(x, y, 0f);
 
-            if (runningOnServer)
+            if (IsServer)
                 PerformHitDetectionOnServer();
 
             yield return null;
@@ -108,7 +97,7 @@ public class MeleeWeapon : NetworkBehaviour
         // Reset state after swing
         isSwinging = false;
         transform.localPosition = originalPosition;
-        if (runningOnServer)
+        if (IsServer)
             hitsThisSwing.Clear();    
     }
 
@@ -128,7 +117,7 @@ public class MeleeWeapon : NetworkBehaviour
 
             hitsThisSwing.Add(hitCollider);
 
-            hitCollider.GetComponent<PlayerHealth>()?.TakeDamage(damage); //TODO: Add requiredComponent and set in Start()
+            hitCollider.GetComponent<PlayerHealth>()?.TakeDamage(damage);
         }
     }
 
