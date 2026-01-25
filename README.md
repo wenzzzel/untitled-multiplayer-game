@@ -31,7 +31,7 @@ flowchart TB
 
     START e7@--> PA(PlayerAnimation)
     
-    subgraph "Animations"
+    subgraph test [Animations]
         direction TB
         PMA(PlayerMovementAnimation)
         PAA(PlayerAttackAnimation)
@@ -55,6 +55,15 @@ flowchart TB
     e5@{ animate: true }
     e6@{ animate: true }
     e7@{ animate: true }
+
+    classDef EntryPoint fill:#520000
+    class PA EntryPoint
+
+    classDef Animations fill:#005228
+    class PMA,PAA,PDA Animations
+
+    classDef Helpers fill:#003852
+    class PAH Helpers
 ```
 
 ### Script Responsibilities
