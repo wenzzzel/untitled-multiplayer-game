@@ -50,75 +50,35 @@ public class MeleeWeapon : NetworkBehaviour
     [ServerRpc]
     private void SwingServerRpc()
     {
-        // Ensure animation duration is set on server before swinging
-        StartCoroutine(SwingOnServerWithAnimation());
-    }
+        if (isSwinging)
+            return;
 
-    private IEnumerator SwingOnServerWithAnimation()
-    {
-        // Animate attack and get the duration on the server
-        var result = new AnimationResult();
-        yield return StartCoroutine(playerAnimationScript.AnimateAttackOnServer(result));
-        
-        // Now swing with the correct duration
-        StartCoroutine(SwingWithDuration(result.Duration, runningOnServer: true));
-        
-        SwingClientRpc();
+        StartCoroutine(Swing(runningOnServer: true));
     }
 
     [ClientRpc]
     private void SwingClientRpc()
     {
-        // Only execute on clients that are NOT the owner (owner already executed swing locally)
-        if (!IsOwner && !isSwinging)
-        {
-            StartCoroutine(Swing(runningOnServer: false));
-        }
+        if (isSwinging || IsOwner)
+            return;
+
+        StartCoroutine(Swing(runningOnServer: false));
+    }
+
+    private IEnumerator Swing(bool runningOnServer)
+    {
+        var result = new AnimationResult();
+        yield return StartCoroutine(playerAnimationScript.AnimateAttack(result));
+        
+        StartCoroutine(MoveHitbox(result.Duration, runningOnServer));
+
+        SwingClientRpc();
     }
 
 #endregion
 #region Private methods
 
-    private IEnumerator Swing(bool runningOnServer)
-    {
-        // Animate attack and get the duration in one call
-        var result = new AnimationResult();
-        yield return StartCoroutine(playerAnimationScript.AnimateAttack(result));
-        var animationDuration = result.Duration;
-
-        Debug.Log($"MeleeWeapon.Swing started. Animation duration: {animationDuration} seconds.");
-
-        // Prep state before swing
-        isSwinging = true;
-        var originalPosition = Vector3.zero;
-        var elapsed = 0f;
-
-        while (elapsed < animationDuration)
-        {
-            elapsed += Time.deltaTime;
-            var progress = elapsed / animationDuration;
-            var angle = progress * 2f * Mathf.PI; // Full circle (0 to 2π)
-
-            // Calculate position on circle
-            var x = Mathf.Cos(angle) * swingRadius;
-            var y = Mathf.Sin(angle) * swingRadius;
-
-            transform.localPosition = originalPosition + new Vector3(x, y, 0f);
-
-            if (runningOnServer)
-                PerformHitDetectionOnServer();
-
-            yield return null;
-        }
-
-        // Reset state after swing
-        isSwinging = false;
-        transform.localPosition = originalPosition;
-        if (runningOnServer)
-            hitsThisSwing.Clear();    
-    }
-
-    private IEnumerator SwingWithDuration(float animationDuration, bool runningOnServer)
+    private IEnumerator MoveHitbox(float animationDuration, bool runningOnServer)
     {
         Debug.Log($"MeleeWeapon.SwingWithDuration started. Animation duration: {animationDuration} seconds.");
 
@@ -168,7 +128,7 @@ public class MeleeWeapon : NetworkBehaviour
 
             hitsThisSwing.Add(hitCollider);
 
-            hitCollider.GetComponent<PlayerHealth>()?.TakeDamage(damage);
+            hitCollider.GetComponent<PlayerHealth>()?.TakeDamage(damage); //TODO: Add requiredComponent and set in Start()
         }
     }
 

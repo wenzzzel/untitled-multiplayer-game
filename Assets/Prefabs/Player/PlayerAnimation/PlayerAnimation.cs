@@ -39,11 +39,6 @@ public class PlayerAnimation : NetworkBehaviour
         yield return StartCoroutine(playerAttackAnimationScript.AnimateAttack(result));
     }
 
-    public IEnumerator AnimateAttackOnServer(AnimationResult result)
-    {
-        yield return StartCoroutine(playerAttackAnimationScript.AnimateAttackOnServer(result));
-    }
-
     public IEnumerator AnimateDeath(AnimationResult result) 
     {
         yield return StartCoroutine(playerDeathAnimationScript.AnimateDeath(result));

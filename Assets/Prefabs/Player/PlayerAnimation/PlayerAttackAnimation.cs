@@ -51,30 +51,14 @@ public class PlayerAttackAnimation : NetworkBehaviour
 #endregion
 #region Public methods
 
-    public IEnumerator AnimateAttack(AnimationResult result)
-    {
-        if (!IsOwner)
-        {
-            result.Duration = 0f;
-            yield break;
-        }
-
-        // Increment counter to trigger animation on all other clients
-        attackTriggerCount.Value++;
-
-        // Play locally immediately for instant feedback
-        animator.Play(ATTACK_ANIMATION_NAME);
-
-        // Return the animation duration via the callback
-        yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
-        result.Duration = playerAnimationHelpersScript.GetLastAnimationDuration();
-    }
-
     /// <summary>
     /// Plays the attack animation without waiting. Used by the server.
     /// </summary>
-    public IEnumerator AnimateAttackOnServer(AnimationResult result)
+    public IEnumerator AnimateAttack(AnimationResult result)
     {
+        if (IsServer)
+            attackTriggerCount.Value++; // Increment counter to trigger animation on all other clients
+
         animator.Play(ATTACK_ANIMATION_NAME);
 
         // Return the animation duration via the callback
