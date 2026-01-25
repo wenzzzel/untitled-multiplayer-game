@@ -19,6 +19,16 @@ public class PlayerAnimation : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
+    void Start()
+    {
+        if (playerMovementAnimationScript == null)
+            Debug.LogError("PlayerMovementAnimation script not assigned in PlayerAnimation script.");
+        if (playerAttackAnimationScript == null)
+            Debug.LogError("PlayerAttackAnimation script not assigned in PlayerAnimation script.");
+        if (playerDeathAnimationScript == null)
+            Debug.LogError("PlayerDeathAnimation script not assigned in PlayerAnimation script.");
+    }
+
 #endregion
 #region Public methods
 

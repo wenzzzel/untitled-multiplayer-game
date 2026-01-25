@@ -21,6 +21,12 @@ public class PlayerAttackAnimation : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
+    void Start()
+    {
+        if (playerAnimationHelpersScript == null)
+            Debug.LogError("PlayerAnimationHelpers script not assigned in PlayerAttackAnimation script.");
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -45,10 +51,6 @@ public class PlayerAttackAnimation : NetworkBehaviour
 #endregion
 #region Public methods
 
-    /// <summary>
-    /// Animates the attack, waits one frame, and returns the animation duration via the result object.
-    /// Usage: yield return StartCoroutine(AnimateAttack(result)); then read result.Duration
-    /// </summary>
     public IEnumerator AnimateAttack(AnimationResult result)
     {
         if (!IsOwner)
@@ -57,16 +59,14 @@ public class PlayerAttackAnimation : NetworkBehaviour
             yield break;
         }
 
-        // Play locally immediately for instant feedback
-        animator.Play(ATTACK_ANIMATION_NAME);
-
         // Increment counter to trigger animation on all other clients
         attackTriggerCount.Value++;
 
-        // Wait one frame and set the animation duration
-        yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
+        // Play locally immediately for instant feedback
+        animator.Play(ATTACK_ANIMATION_NAME);
 
-        // Set the result
+        // Return the animation duration via the callback
+        yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
         result.Duration = playerAnimationHelpersScript.GetLastAnimationDuration();
     }
 
@@ -77,10 +77,8 @@ public class PlayerAttackAnimation : NetworkBehaviour
     {
         animator.Play(ATTACK_ANIMATION_NAME);
 
-        // Wait one frame and set the animation duration
+        // Return the animation duration via the callback
         yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
-
-        // Set the result
         result.Duration = playerAnimationHelpersScript.GetLastAnimationDuration();
     }
 

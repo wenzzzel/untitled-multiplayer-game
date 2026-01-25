@@ -13,7 +13,6 @@ public class AnimationResult
 public class PlayerAnimationHelpers : MonoBehaviour
 {
     private Animator animator;
-
     private float lastAnimationDuration = 0f;
 
 #region Lifecycle calls
@@ -28,7 +27,7 @@ public class PlayerAnimationHelpers : MonoBehaviour
 
     ///<summary>
     /// Returns the duration of the last played animation.
-    /// Always call this from a coroutine after waiting one frame to ensure the value is updated.
+    /// Use after calling SetAnimationDuration coroutine.
     ///</summary>
     public float GetLastAnimationDuration()
     {
@@ -36,17 +35,14 @@ public class PlayerAnimationHelpers : MonoBehaviour
     }
 
 #endregion
-#region Coroutines
+#region Public Coroutines
 
     public IEnumerator SetAnimationDuration()
     {
         // Wait one frame to ensure animator state is updated
         yield return null;
 
-        // Update the public field with the duration
-        var duration = animator.GetCurrentAnimatorStateInfo(0).length;
-        lastAnimationDuration = duration;
-        Debug.Log($"Set lastAnimationDuration to {duration} seconds.");
+        lastAnimationDuration = animator.GetCurrentAnimatorStateInfo(0).length;
     }
 
 #endregion

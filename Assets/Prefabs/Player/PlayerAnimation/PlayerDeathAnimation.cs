@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerDeathAnimation : NetworkBehaviour
 {
     private Animator animator;
+    private const string DEATH_ANIMATION_NAME = "Dust 2 Animation";
 
     [Header("References to other scripts")]
     [SerializeField] private PlayerAnimationHelpers playerAnimationHelpersScript;
@@ -15,9 +16,15 @@ public class PlayerDeathAnimation : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
+    void Start()
+    {
+        if (playerAnimationHelpersScript == null)
+            Debug.LogError("PlayerAnimationHelpers script not assigned in PlayerDeathAnimation script.");
+    }
+
     public IEnumerator AnimateDeath(AnimationResult result) 
     {
-        animator.Play("Dust 2 Animation");
+        animator.Play(DEATH_ANIMATION_NAME);
         yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
         result.Duration = playerAnimationHelpersScript.GetLastAnimationDuration();
     }
