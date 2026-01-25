@@ -1,4 +1,7 @@
-# untitled-multiplayer-game
+<p align="center">
+  <img src="Github Assets/untitled-multiplayer-game-nobg.png" alt="Game Logo" width="500">
+</p>
+
 An untitled 2D multiplayer game built in Unity. Same build is used both for client and server. To run as server, start it with `-nographics`.
 
 ## 🏃‍➡️ How to run as server
