@@ -18,3 +18,51 @@ Start:
 </br>
 Stop:
 `Get-Process | ? -Property Name -Like '*untitled*' | Stop-Process`
+
+## 🏗️ Architecture
+
+### PlayerAnimation
+
+The PlayerAnimation system is split into multiple specialized scripts for better organization and separation of concerns.
+
+```mermaid
+flowchart TB
+    START@{ shape: sm-circ, label: "Small start" }
+
+    START e7@--> PA(PlayerAnimation)
+    
+    subgraph "Animations"
+        direction TB
+        PMA(PlayerMovementAnimation)
+        PAA(PlayerAttackAnimation)
+        PDA(PlayerDeathAnimation)
+    end
+
+    PAH{{PlayerAnimationHelpers}}
+
+    PA e1@--> PMA 
+    PA e2@--> PAA
+    PA e3@--> PDA
+    PA e4@--> PAH
+
+    PAA e5@--> PAH
+    PDA e6@--> PAH
+
+    e1@{ animate: true }
+    e2@{ animate: true }
+    e3@{ animate: true }
+    e4@{ animate: true }
+    e5@{ animate: true }
+    e6@{ animate: true }
+    e7@{ animate: true }
+```
+
+### Script Responsibilities
+
+| Script | Responsibility |
+|--------|----------------|
+| `PlayerAnimation` | Main facade that delegates animation calls to specialized scripts |
+| `PlayerMovementAnimation` | Handles idle/run animations |
+| `PlayerAttackAnimation` | Handles attack animations |
+| `PlayerDeathAnimation` | Handles death animation |
+| `PlayerAnimationHelpers` | Utility class to make it possible to reuse common functions |
