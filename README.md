@@ -43,7 +43,6 @@ flowchart TB
     PA e1@--> PMA 
     PA e2@--> PAA
     PA e3@--> PDA
-    PA e4@--> PAH
 
     PAA e5@--> PAH
     PDA e6@--> PAH
@@ -51,7 +50,6 @@ flowchart TB
     e1@{ animate: true }
     e2@{ animate: true }
     e3@{ animate: true }
-    e4@{ animate: true }
     e5@{ animate: true }
     e6@{ animate: true }
     e7@{ animate: true }
@@ -70,7 +68,7 @@ flowchart TB
 
 | Script | Responsibility |
 |--------|----------------|
-| `PlayerAnimation` | Main facade that delegates animation calls to specialized scripts |
+| `PlayerAnimation` | Facade that delegates animation calls to specialized scripts |
 | `PlayerMovementAnimation` | Handles idle/run animations |
 | `PlayerAttackAnimation` | Handles attack animations |
 | `PlayerDeathAnimation` | Handles death animation |

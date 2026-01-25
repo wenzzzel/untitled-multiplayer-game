@@ -62,7 +62,6 @@ public class PlayerHealth : NetworkBehaviour
 
     private void OnCurrentHealthChanged(int previousValue, int newHealthValue)
     {
-        Debug.Log($"Current health updated via network variable: {newHealthValue}");
         healthBarScript.UpdateHealthBar(newHealthValue);
 
         if (newHealthValue <= 0)
@@ -85,13 +84,10 @@ public class PlayerHealth : NetworkBehaviour
 
     private IEnumerator DespawnCoroutine()
     {   
-        playerAnimationScript.AnimateDeath();
-        
-        // Wait one frame to ensure lastAnimationDuration is updated
-        yield return null; 
-        var deathAnimationDuration = playerAnimationScript.GetLastAnimationDuration();
+        var result = new AnimationResult();
+        yield return StartCoroutine(playerAnimationScript.AnimateDeath(result));
 
-        yield return new WaitForSeconds(deathAnimationDuration);
+        yield return new WaitForSeconds(result.Duration);
 
         Despawn();
     }

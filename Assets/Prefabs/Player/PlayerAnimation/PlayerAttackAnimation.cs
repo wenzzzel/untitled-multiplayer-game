@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -44,22 +45,43 @@ public class PlayerAttackAnimation : NetworkBehaviour
 #endregion
 #region Public methods
 
-    public void AnimateAttack()
+    /// <summary>
+    /// Animates the attack, waits one frame, and returns the animation duration via the result object.
+    /// Usage: yield return StartCoroutine(AnimateAttack(result)); then read result.Duration
+    /// </summary>
+    public IEnumerator AnimateAttack(AnimationResult result)
     {
-        if (!IsOwner) //TODO: Not sure if this is needed
-            return;
+        if (!IsOwner)
+        {
+            result.Duration = 0f;
+            yield break;
+        }
 
         // Play locally immediately for instant feedback
         animator.Play(ATTACK_ANIMATION_NAME);
-        StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
 
         // Increment counter to trigger animation on all other clients
         attackTriggerCount.Value++;
+
+        // Wait one frame and set the animation duration
+        yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
+
+        // Set the result
+        result.Duration = playerAnimationHelpersScript.GetLastAnimationDuration();
     }
 
-    public void AnimateAttack2()
+    /// <summary>
+    /// Plays the attack animation without waiting. Used by the server.
+    /// </summary>
+    public IEnumerator AnimateAttackOnServer(AnimationResult result)
     {
         animator.Play(ATTACK_ANIMATION_NAME);
+
+        // Wait one frame and set the animation duration
+        yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
+
+        // Set the result
+        result.Duration = playerAnimationHelpersScript.GetLastAnimationDuration();
     }
 
 #endregion

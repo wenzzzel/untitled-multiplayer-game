@@ -38,8 +38,6 @@ public class MeleeWeapon : NetworkBehaviour
 
         if (!IsOwner)
             return;
-
-        playerAnimationScript.AnimateAttack();
         
         StartCoroutine(Swing(runningOnServer: false)); // Execute swing locally for instant feedback
         
@@ -58,11 +56,12 @@ public class MeleeWeapon : NetworkBehaviour
 
     private IEnumerator SwingOnServerWithAnimation()
     {
-        // Start setting the animation duration on the server
-        yield return StartCoroutine(playerAnimationScript.SetAnimationDurationFromServer());
+        // Animate attack and get the duration on the server
+        var result = new AnimationResult();
+        yield return StartCoroutine(playerAnimationScript.AnimateAttackOnServer(result));
         
         // Now swing with the correct duration
-        StartCoroutine(Swing(runningOnServer: true));
+        StartCoroutine(SwingWithDuration(result.Duration, runningOnServer: true));
         
         SwingClientRpc();
     }
@@ -82,12 +81,46 @@ public class MeleeWeapon : NetworkBehaviour
 
     private IEnumerator Swing(bool runningOnServer)
     {
-        // Wait one frame so that the lastAnimationDuration has got the value of the attack animation
-        yield return null;
-        yield return null;
-        var animationDuration = playerAnimationScript.GetLastAnimationDuration();
+        // Animate attack and get the duration in one call
+        var result = new AnimationResult();
+        yield return StartCoroutine(playerAnimationScript.AnimateAttack(result));
+        var animationDuration = result.Duration;
 
         Debug.Log($"MeleeWeapon.Swing started. Animation duration: {animationDuration} seconds.");
+
+        // Prep state before swing
+        isSwinging = true;
+        var originalPosition = Vector3.zero;
+        var elapsed = 0f;
+
+        while (elapsed < animationDuration)
+        {
+            elapsed += Time.deltaTime;
+            var progress = elapsed / animationDuration;
+            var angle = progress * 2f * Mathf.PI; // Full circle (0 to 2π)
+
+            // Calculate position on circle
+            var x = Mathf.Cos(angle) * swingRadius;
+            var y = Mathf.Sin(angle) * swingRadius;
+
+            transform.localPosition = originalPosition + new Vector3(x, y, 0f);
+
+            if (runningOnServer)
+                PerformHitDetectionOnServer();
+
+            yield return null;
+        }
+
+        // Reset state after swing
+        isSwinging = false;
+        transform.localPosition = originalPosition;
+        if (runningOnServer)
+            hitsThisSwing.Clear();    
+    }
+
+    private IEnumerator SwingWithDuration(float animationDuration, bool runningOnServer)
+    {
+        Debug.Log($"MeleeWeapon.SwingWithDuration started. Animation duration: {animationDuration} seconds.");
 
         // Prep state before swing
         isSwinging = true;

@@ -1,6 +1,14 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Simple wrapper class to hold the animation duration result from a coroutine.
+/// </summary>
+public class AnimationResult
+{
+    public float Duration { get; set; }
+}
+
 [RequireComponent(typeof(Animator))]
 public class PlayerAnimationHelpers : MonoBehaviour
 {

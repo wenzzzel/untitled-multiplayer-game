@@ -11,7 +11,6 @@ public class PlayerAnimation : NetworkBehaviour
     [SerializeField] private PlayerMovementAnimation playerMovementAnimationScript;
     [SerializeField] private PlayerAttackAnimation playerAttackAnimationScript;
     [SerializeField] private PlayerDeathAnimation playerDeathAnimationScript;
-    [SerializeField] private PlayerAnimationHelpers playerAnimationHelpersScript;
 
 #region Lifecycle calls
 
@@ -25,9 +24,20 @@ public class PlayerAnimation : NetworkBehaviour
 
     public void AnimateMovement(bool moving) => playerMovementAnimationScript.AnimateMovement(moving);
 
-    public void AnimateAttack() => playerAttackAnimationScript.AnimateAttack();
+    public IEnumerator AnimateAttack(AnimationResult result)
+    {
+        yield return StartCoroutine(playerAttackAnimationScript.AnimateAttack(result));
+    }
 
-    public void AnimateDeath() => playerDeathAnimationScript.AnimateDeath();
+    public IEnumerator AnimateAttackOnServer(AnimationResult result)
+    {
+        yield return StartCoroutine(playerAttackAnimationScript.AnimateAttackOnServer(result));
+    }
+
+    public IEnumerator AnimateDeath(AnimationResult result) 
+    {
+        yield return StartCoroutine(playerDeathAnimationScript.AnimateDeath(result));
+    }
 
     public void DisableAnimator()
     {
@@ -37,34 +47,6 @@ public class PlayerAnimation : NetworkBehaviour
     public void EnableAnimator()
     {
         animator.enabled = true;
-    }
-
-    ///<summary>
-    /// Returns the duration of the last played animation.
-    /// Always call this from a coroutine after waiting one frame to ensure the value is updated.
-    ///</summary>
-    public float GetLastAnimationDuration()
-    {
-        return playerAnimationHelpersScript.GetLastAnimationDuration();
-    }
-
-#endregion
-#region Coroutines
-
-    private IEnumerator SetAnimationDuration()
-    {
-        yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
-    }
-
-    /// <summary>
-    /// Sets the animation duration for the attack animation on the server.
-    /// Call this on the server before reading GetLastAnimationDuration().
-    /// </summary>
-    public IEnumerator SetAnimationDurationFromServer()
-    {
-        playerAttackAnimationScript.AnimateAttack2();
-
-        yield return StartCoroutine(SetAnimationDuration());
     }
 
 #endregion

@@ -656,7 +656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 650837927
+  GlobalObjectIdHash: 553305891
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -792,7 +792,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   playerMovementAnimationScript: {fileID: 6889769041495273307}
   playerAttackAnimationScript: {fileID: 946505158136186964}
-  playerAnimationDeathScript: {fileID: 6308840065573360546}
+  playerDeathAnimationScript: {fileID: 6308840065573360546}
   playerAnimationHelpersScript: {fileID: 2847513070760675963}
 --- !u!114 &2847513070760675963
 MonoBehaviour:

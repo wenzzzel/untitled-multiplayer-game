@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,9 +15,10 @@ public class PlayerDeathAnimation : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
-    public void AnimateDeath()
+    public IEnumerator AnimateDeath(AnimationResult result) 
     {
         animator.Play("Dust 2 Animation");
-        StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
+        yield return StartCoroutine(playerAnimationHelpersScript.SetAnimationDuration());
+        result.Duration = playerAnimationHelpersScript.GetLastAnimationDuration();
     }
 }
