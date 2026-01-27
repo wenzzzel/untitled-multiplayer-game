@@ -57,13 +57,13 @@ flowchart TB
     e6@{ animate: true }
     e7@{ animate: true }
 
-    classDef EntryPoint fill:#520000,color:#0f0f0f
+    classDef EntryPoint fill:#520000,color:#cfcfcf
     class PA EntryPoint
 
-    classDef Animations fill:#005228,color:#0f0f0f
+    classDef Animations fill:#005228,color:#cfcfcf
     class PMA,PAA,PDA Animations
 
-    classDef Helpers fill:#003852,color:#0f0f0f
+    classDef Helpers fill:#003852,color:#cfcfcf
     class PAH Helpers
 ```
 
